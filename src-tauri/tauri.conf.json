@@ -23,9 +23,9 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/OWNER/REPO/releases/latest/download/latest.json"
+        "https://github.com/roswaalem/GenSheet/releases/latest/download/latest.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY0QjE1QTAwRTlDNzRGRDkKUldUWlQ4ZnBBRnF4WkNhaFU1MUVNUGFXMDVGQzJvSmF5RmVGNUZpUnFzbXA0TXBKRXBVOVgrbEsK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU5QzhFNTI0QTZEMEM0OUIKUldTYnhOQ21KT1hJNld4RlA1bEJFZEQ4VGNMOHJ3ZitsM0JLUXI3L2JteFovWmlyYWcvSTFFLzQK",
       "windows": { "installMode": "passive" }
     }
   },

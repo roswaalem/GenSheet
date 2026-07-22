@@ -1,0 +1,55 @@
+name: Release
+
+# Publie une version quand un tag vX.Y.Z est poussé. Le tag doit correspondre
+# au champ "version" de src-tauri/tauri.conf.json : c'est lui que l'updater
+# compare à la version installée.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  release:
+    # Windows uniquement : la détection du jeu lit des chemins Windows.
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # Le cache Rust évite de recompiler tout l'arbre Tauri à chaque tag.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Signe l'installeur et le latest.json que l'app vérifiera avec la
+          # clé publique de tauri.conf.json. Sans ce secret, pas de mise à jour.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          # Doit être défini : sans lui, tauri ouvre une invite interactive et
+          # le job reste bloqué jusqu'au timeout.
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Gensheet ${{ github.ref_name }}
+          releaseBody: |
+            Installeur Windows et manifeste de mise à jour.
+
+            Outil non officiel, non affilié à HoYoverse.
+          # Surtout pas en brouillon : l'updater interroge
+          # releases/latest/download/latest.json, qui ignore les brouillons.
+          releaseDraft: false
+          prerelease: false
