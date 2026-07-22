@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gensheet</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="main.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <!-- Recopié de assets/gensheet_logo.svg, pas référencé en <img> : un <img>
+         interdit de recolorer les tracés noirs, invisibles sur ce fond.
+         Après toute retouche du SVG source, relancer la synchronisation. -->
+    <h1 class="brand">
+      <svg class="brand-mark" viewBox="0 -6.8 240 240" role="img" aria-label="Gensheet">
+        <path transform="matrix(1.625 0 0 1.625 81.03 3.84)" fill="currentColor" fill-rule="evenodd" stroke="currentColor" stroke-width="0.24" stroke-linecap="square" stroke-linejoin="bevel" d="M24 0C24.1906 16.3318 16.0492 24.1879 0 24C15.4917 24.1994 24.0246 31.6445 24 48C24.0642 32.3732 31.4998 23.8307 48 24C31.9897 24.2276 23.9897 16.2276 24 0Z"/>
+        <path transform="matrix(1.625 0 0 1.625 3.02636283488897 42.84)" fill="currentColor" fill-rule="evenodd" stroke="currentColor" stroke-width="0.24" stroke-linecap="square" stroke-linejoin="bevel" d="M36.0022 0C20.8906 4.64904 0.233855 12.031 0.00223826 24C-0.233861 28.3063 18.2877 29.9016 18.0022 30C18.2695 29.8314 0.296269 23.928 12.0622 18C12.2139 18.0573 24.3339 12.209 42.0022 12C37.3049 9.10003 35.3049 5.10003 36.0022 0Z"/>
+        <path transform="matrix(-1.625 0 0 1.625 237.033637165111 42.84)" fill="currentColor" fill-rule="evenodd" stroke="currentColor" stroke-width="0.24" stroke-linecap="square" stroke-linejoin="bevel" d="M36.0022 0C20.8906 4.64904 0.233855 12.031 0.00223826 24C-0.233861 28.3063 18.2877 29.9016 18.0022 30C18.2695 29.8314 0.296269 23.928 12.0622 18C12.2139 18.0573 24.3339 12.209 42.0022 12C37.3049 9.10003 35.3049 5.10003 36.0022 0Z"/>
+        <path transform="matrix(1.896 0 0 1.896 51.7589907692308 99.6087913645302)" fill="#003052" fill-rule="evenodd" stroke="#003052" stroke-width="0.24" stroke-linecap="square" stroke-linejoin="bevel" d="M36 60.05C30.1663 54.1892 18.5205 47.9128 0 48.05L0 0.0500078C11.9286 -0.0196873 24.5841 -0.161561 36 12.05C48.4758 0.479307 60.0916 -0.252861 72 0.0500078L72 48.05C55.2722 48.1125 43.2722 52.1125 36 60.05Z"/>
+        <path transform="matrix(1.896 0 0 1.896 51.7589907692308 108.70959136453)" fill="#003052" fill-rule="evenodd" stroke="#003052" stroke-width="0.24" stroke-linecap="square" stroke-linejoin="bevel" d="M36 60.05C30.1663 54.1892 18.5205 47.9128 0 48.05L0 0.0500078C11.9286 -0.0196873 24.5841 -0.161561 36 12.05C48.4758 0.479307 60.0916 -0.252861 72 0.0500078L72 48.05C55.2722 48.1125 43.2722 52.1125 36 60.05Z"/>
+        <path transform="matrix(1.80196304139878 0 0 1.9232738078876 55.1443202506351 104.164373269033)" fill="#fec28e" fill-rule="evenodd" stroke="#fec28e" stroke-width="0.24" stroke-linecap="square" stroke-linejoin="bevel" d="M36 60.05C30.1663 54.1892 18.5205 47.9128 0 48.05L0 0.0500078C11.9286 -0.0196873 24.5841 -0.161561 36 12.05C48.4758 0.479307 60.0916 -0.252861 72 0.0500078L72 48.05C55.2722 48.1125 43.2722 52.1125 36 60.05Z"/>
+        <path transform="matrix(1.65899998612267 0 0 1.896 60.2909907813383 104.159191340019)" fill="#fedabb" fill-rule="evenodd" stroke="#fedabb" stroke-width="0.24" stroke-linecap="square" stroke-linejoin="bevel" d="M36 60.05C30.1663 54.1892 18.5205 47.9128 0 48.05L0 0.0500078C11.9286 -0.0196873 24.5841 -0.161561 36 12.05C48.4758 0.479307 60.0916 -0.252861 72 0.0500078L72 48.05C55.2722 48.1125 43.2722 52.1125 36 60.05Z"/>
+      </svg>
+      <span>Gensheet</span>
+    </h1>
+    <nav class="nav">
+      <button class="active" data-panel="dashboard">Tableau de bord</button>
+      <button data-panel="codes">Codes</button>
+      <button data-panel="characters">Personnages</button>
+      <button data-panel="map">Carte</button>
+    </nav>
+  </aside>
+
+  <main>
+    <section id="dashboard" class="panel visible">
+      <div class="card">
+        <p id="game-status">Détection du jeu…</p>
+        <div class="row">
+          <button id="sync-btn" disabled>Synchroniser les vœux</button>
+        </div>
+        <p id="sync-status" class="muted"></p>
+      </div>
+
+      <div class="card">
+        <p id="hoyolab-status">Compte HoYoLAB non connecté.</p>
+        <div class="row">
+          <button id="hoyolab-login-btn">Se connecter à HoYoLAB</button>
+          <button id="hoyolab-capture-btn" hidden>J'ai terminé la connexion</button>
+          <button id="hoyolab-refresh-btn" hidden>Rafraîchir le profil</button>
+        </div>
+        <p id="hoyolab-msg" class="muted"></p>
+      </div>
+
+      <div class="stats" id="hoyolab-stats" hidden>
+        <div class="card stat"><span id="hy-days">–</span><label>Jours d'activité</label></div>
+        <div class="card stat"><span id="hy-achievements">–</span><label>Hauts faits</label></div>
+        <div class="card stat"><span id="hy-abyss">–</span><label>Abysse</label></div>
+        <div class="card stat"><span id="hy-chests">–</span><label>Coffres ouverts</label></div>
+        <div class="card stat"><span id="hy-oculi">–</span><label>Oculus collectés</label></div>
+        <div class="card stat"><span id="hy-waypoints">–</span><label>Points de tp / domaines</label></div>
+      </div>
+
+      <div class="stats">
+        <div class="card stat"><span id="stat-total">–</span><label>Vœux au total</label></div>
+        <div class="card stat"><span id="stat-primos">–</span><label>Primo-gemmes dépensées</label></div>
+        <div class="card stat"><span id="stat-5">–</span><label>5★ obtenus</label></div>
+        <div class="card stat"><span id="stat-4">–</span><label>4★ obtenus</label></div>
+        <div class="card stat"><span id="stat-pity">–</span><label>Pity perso actuel</label></div>
+      </div>
+
+      <div class="card">
+        <table id="history">
+          <thead><tr><th>Nom</th><th>Type</th><th>Rareté</th><th>Date</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="pager">
+          <button id="prev">←</button>
+          <span id="page-label"></span>
+          <button id="next">→</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="codes" class="panel">
+      <div class="card has-hint">
+        <p id="codes-status">Chargement des codes…</p>
+        <div class="row">
+          <button id="codes-refresh-btn">Actualiser la liste</button>
+          <button id="codes-auth-btn">Autoriser l'échange</button>
+          <button id="codes-auth-done-btn" hidden>Vérifier la connexion</button>
+          <button id="codes-all-btn" hidden>Tout échanger</button>
+          <span class="hint" tabindex="0" data-tip="Un code toutes les 5 s : l'API refuse plus rapide.&#10;Les récompenses arrivent par courrier en jeu.&#10;Un refus « invalide » peut venir du serveur ; l'état est mémorisé pour ne pas le réessayer.&#10;Seuls les codes encore publiés par les sources restent listés.">?</span>
+        </div>
+        <p id="codes-auth-help" class="muted" hidden>
+          L'échange direct demande d'autres cookies que la connexion HoYoLAB.
+          « Autoriser l'échange » ouvre la page officielle HoYoverse ; la fenêtre se
+          referme d'elle-même une fois la connexion faite. Sans cela, chaque code
+          ouvre simplement cette page, prérempli.
+        </p>
+        <div class="row">
+          <input id="code-input" placeholder="Saisir un code à la main" autocomplete="off" />
+          <button id="code-add-btn">Échanger ce code</button>
+        </div>
+        <p id="codes-msg" class="muted"></p>
+      </div>
+
+      <div class="card">
+        <table id="codes-table">
+          <thead>
+            <tr><th>Code</th><th>Récompenses</th><th>Mon état</th><th></th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    </section>
+    <section id="characters" class="panel">
+      <div class="card">
+        <p id="chars-status">Connecte-toi à HoYoLAB depuis le tableau de bord pour voir tes personnages.</p>
+      </div>
+      <div class="card has-hint" id="farm" hidden>
+        <div class="row farm-head">
+          <h2>Farm du jour</h2>
+          <span class="hint" tabindex="0" data-tip="Croisement des donjons ouverts et des matériaux d'élévation, d'après les données Ambr.&#10;Le jour de jeu bascule à la réinitialisation du serveur, pas à minuit local.&#10;Les donjons d'armes ne sont pas listés : l'inventaire d'armes n'est pas encore lu.">?</span>
+        </div>
+        <div class="row" id="farm-days"></div>
+        <p id="farm-msg" class="muted"></p>
+        <div id="farm-list"></div>
+      </div>
+
+      <div class="explorations card" id="explorations" hidden>
+        <h2>Exploration</h2>
+        <div id="explorations-list"></div>
+      </div>
+      <div class="char-grid" id="char-grid"></div>
+    </section>
+    <section id="map" class="panel"><div class="card"><p>Phase 5 — carte interactive.</p></div></section>
+  </main>
+
+  <!-- Réaffiché à chaque lancement tant que la mise à jour n'est pas faite :
+       la fermeture ne vaut que pour la session en cours, rien n'est mémorisé. -->
+  <div id="update-banner" class="update-banner" hidden>
+    <div class="update-text">
+      <strong>Mise à jour disponible</strong>
+      <span class="muted" id="update-version"></span>
+    </div>
+    <button id="update-btn">Mettre à jour</button>
+    <button id="update-close" class="ghost" title="Plus tard">×</button>
+  </div>
+</body>
+</html>
