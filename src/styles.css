@@ -1,5 +1,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* L'attribut hidden ne pose que `display: none` via la feuille du navigateur,
+   qu'une simple règle de classe (`.stats { display: grid }`) écrase. Sans ce
+   rappel, tout élément masqué en HTML reste visible. */
+[hidden] { display: none !important; }
+
 :root {
   --bg-deep: #070a1f;
   --accent: #8f7bff;

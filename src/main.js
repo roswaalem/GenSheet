@@ -489,11 +489,15 @@ async function hoyolabInit() {
 // --- Mises à jour ----------------------------------------------------------
 
 async function updateInit() {
-  // Le backend renvoie null hors ligne : aucun message d'erreur au démarrage.
-  const info = await invoke("update_check");
-  if (!info) return;
-  $("#update-version").textContent = `${info.current} → ${info.version}`;
-  $("#update-banner").hidden = false;
+  try {
+    // Le backend renvoie null hors ligne : aucun message d'erreur au démarrage.
+    const info = await invoke("update_check");
+    if (!info) return;
+    $("#update-version").textContent = `${info.current} → ${info.version}`;
+    $("#update-banner").hidden = false;
+  } catch {
+    // Un contrôle de mise à jour raté ne doit jamais gêner le démarrage.
+  }
 }
 
 async function runUpdate() {
