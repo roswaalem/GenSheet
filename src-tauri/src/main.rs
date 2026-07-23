@@ -301,6 +301,36 @@ async fn farm_plan(
     Ok(farm::plan(&data, &day, &avatar_ids))
 }
 
+// --- Personnages et builds ------------------------------------------------
+
+/// Session et compte, exigés par tous les appels au game record.
+fn hoyolab_context(db: &Db) -> Result<(hoyolab::Session, hoyolab::Account)> {
+    let session: hoyolab::Session = db
+        .get_setting(SESSION_KEY)?
+        .ok_or_else(|| Error::Msg("Pas de session HoYoLAB : connexion requise.".into()))
+        .and_then(|raw| serde_json::from_str(&raw).map_err(Error::from))?;
+    let account: hoyolab::Account = db
+        .get_setting(ACCOUNT_KEY)?
+        .ok_or_else(|| Error::Msg("Pas de compte HoYoLAB enregistré.".into()))
+        .and_then(|raw| serde_json::from_str(&raw).map_err(Error::from))?;
+    Ok((session, account))
+}
+
+#[tauri::command]
+async fn hoyolab_characters(db: State<'_, Db>) -> Result<Vec<hoyolab::Character>> {
+    let (session, account) = hoyolab_context(db.inner())?;
+    hoyolab::fetch_characters(&session, &account).await
+}
+
+#[tauri::command]
+async fn hoyolab_character_build(
+    db: State<'_, Db>,
+    character_id: i64,
+) -> Result<hoyolab::CharacterBuild> {
+    let (session, account) = hoyolab_context(db.inner())?;
+    hoyolab::fetch_character_build(&session, &account, character_id).await
+}
+
 // --- Mises à jour --------------------------------------------------------
 
 #[derive(serde::Serialize)]
@@ -380,6 +410,8 @@ fn main() {
             codes_redeem,
             codes_set_status,
             farm_plan,
+            hoyolab_characters,
+            hoyolab_character_build,
             update_check,
             update_install
         ])

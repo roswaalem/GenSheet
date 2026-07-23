@@ -197,6 +197,43 @@ th { color: var(--muted); font-weight: 500; }
 }
 .update-banner button.ghost:hover { color: var(--text); }
 
+/* --- Analyse d'un personnage --- */
+.char[data-character] { cursor: pointer; transition: border-color .15s, transform .15s; }
+.char[data-character]:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+#build-body { margin-top: 16px; }
+
+.advice {
+  padding: 10px 12px; margin-bottom: 12px; border-radius: 10px;
+  border: 1px solid rgba(94,200,240,.28); background: rgba(94,200,240,.06);
+  font-size: .82rem;
+}
+.advice strong { display: block; margin-bottom: 4px; font-size: .8rem; }
+.advice .muted { margin-top: 2px; }
+
+.artifacts {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px; margin-top: 12px;
+}
+.artifact {
+  padding: 10px 12px; border-radius: 12px; font-size: .8rem;
+  border: 1px solid var(--card-border); background: rgba(255,255,255,.03);
+}
+.artifact.rarity-5 { border-color: rgba(240,198,107,.4); }
+.artifact.rarity-4 { border-color: rgba(192,140,240,.35); }
+.artifact-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.artifact-head .muted { margin-top: 0; font-size: .72rem; text-align: right; }
+.artifact-main { margin: 6px 0 8px; color: var(--accent-2); font-weight: 600; }
+.artifact .sub {
+  display: grid; grid-template-columns: 1fr auto 34px;
+  gap: 6px; padding: 2px 0; color: var(--muted);
+}
+.artifact .sub span:nth-child(2) { color: var(--text); }
+.artifact .sub .muted { margin-top: 0; text-align: right; font-size: .72rem; }
+/* Sous-statistique figurant dans les conseils HoYoLAB pour ce personnage. */
+.artifact .sub.wanted span:first-child { color: var(--accent-2); }
+.artifact-main .badge { margin-left: 6px; font-size: .68rem; vertical-align: middle; }
+
 /* --- Farm --- */
 .farm-head { margin-top: 0; align-items: center; }
 .farm-head h2 { font-size: 1rem; font-weight: 600; }

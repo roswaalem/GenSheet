@@ -143,7 +143,7 @@ function renderProfile(p) {
     .slice()
     .sort((a, b) => b.rarity - a.rarity || b.level - a.level)
     .map((a) => `
-      <div class="card char rarity-${a.rarity}">
+      <div class="card char rarity-${a.rarity}" data-character="${a.id}" tabindex="0">
         <img src="${esc(a.image)}" alt="" loading="lazy" />
         <strong>${esc(a.name)}</strong>
         <span class="muted">Nv. ${a.level} · C${a.actived_constellation_num} · ${esc(a.element)}</span>
@@ -474,6 +474,60 @@ function renderFarm(plan) {
     </div>`).join("");
 }
 
+// --- Analyse d'un personnage -----------------------------------------------
+
+async function openBuild(characterId) {
+  const card = $("#build");
+  card.hidden = false;
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  $("#build-msg").textContent = "Lecture des artéfacts…";
+  $("#build-body").innerHTML = "";
+  try {
+    renderBuild(await invoke("hoyolab_character_build", { characterId }));
+  } catch (e) {
+    $("#build-msg").textContent = e;
+  }
+}
+
+function renderBuild(b) {
+  const c = b.character;
+  $("#build-title").textContent = c.name;
+  $("#build-msg").textContent =
+    `Nv. ${c.level} · C${c.actived_constellation_num} · ${b.weapon}` +
+    (b.weapon_level ? ` (Nv. ${b.weapon_level}, R${b.weapon_refinement})` : "") +
+    ` · valeur critique ${b.crit_value.toFixed(1)}`;
+
+  const conseils = b.advice.length
+    ? `<div class="advice"><strong>Conseillé par HoYoLAB</strong>${
+        b.advice.map((a) => `<div class="muted">${esc(a)}</div>`).join("")}</div>`
+    : "";
+
+  const artefacts = b.relics.length
+    ? `<div class="artifacts">${b.relics.map((r) => {
+        // main_ok vaut null sur la fleur et la plume : rien à juger.
+        const verdict = r.main_ok === null ? ""
+          : r.main_ok ? `<span class="badge ok">adaptée</span>`
+                      : `<span class="badge warn">hors conseils</span>`;
+        return `
+          <div class="artifact rarity-${r.rarity}">
+            <div class="artifact-head">
+              <strong>${esc(r.slot)}</strong>
+              <span class="muted">+${r.level} · ${esc(r.set)}</span>
+            </div>
+            <div class="artifact-main">${esc(r.main.label)} ${esc(r.main.value)} ${verdict}</div>
+            ${r.subs.length ? r.subs.map((s) => `
+              <div class="sub${s.wanted ? " wanted" : ""}">
+                <span>${esc(s.label)}</span>
+                <span>${esc(s.value)}</span>
+                <span class="muted">${s.times ? "×" + (s.times + 1) : ""}</span>
+              </div>`).join("") : `<div class="sub"><span class="muted">Aucune sous-statistique</span></div>`}
+          </div>`;
+      }).join("")}</div>`
+    : `<p class="muted">Aucun artéfact équipé.</p>`;
+
+  $("#build-body").innerHTML = conseils + artefacts;
+}
+
 async function hoyolabInit() {
   try {
     const account = await invoke("hoyolab_account");
@@ -528,6 +582,11 @@ $("#code-add-btn").addEventListener("click", redeemTyped);
 $("#code-input").addEventListener("keydown", (e) => { if (e.key === "Enter") redeemTyped(); });
 $("#codes-table tbody").addEventListener("click", redeemFromTable);
 $("#codes-table tbody").addEventListener("change", setCodeStatus);
+$("#char-grid").addEventListener("click", (e) => {
+  const card = e.target.closest("[data-character]");
+  if (card) openBuild(Number(card.dataset.character));
+});
+$("#build-close").addEventListener("click", () => { $("#build").hidden = true; });
 $("#farm-days").addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-day]");
   if (!btn) return;
