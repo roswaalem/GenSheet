@@ -1,5 +1,6 @@
-import { invoke, $ } from "./util.js";
+import { invoke, $, esc } from "./util.js";
 import { applyTheme, loadTheme } from "./theme.js";
+import { CHANGELOG } from "./changelog.js";
 import { dashboard } from "./pages/dashboard.js";
 import { characters } from "./pages/characters.js";
 import { codes } from "./pages/codes.js";
@@ -185,6 +186,42 @@ async function runUpdate() {
   }
 }
 
+// --- Quoi de neuf -----------------------------------------------------------
+
+// Au 1er lancement d'une nouvelle version : pop-up des changements. On mémorise
+// la dernière version vue ; à l'install initiale on enregistre sans rien montrer.
+const CHANGELOG_KEY = "gensheet.changelogSeen";
+
+function showWhatsNew() {
+  const latest = CHANGELOG[0]?.version;
+  if (!latest) return;
+  const seen = localStorage.getItem(CHANGELOG_KEY);
+  localStorage.setItem(CHANGELOG_KEY, latest);
+  if (!seen || seen === latest) return; // première install ou rien de neuf
+  const idx = CHANGELOG.findIndex((c) => c.version === seen);
+  const entries = idx > 0 ? CHANGELOG.slice(0, idx) : [CHANGELOG[0]];
+  renderWhatsNew(entries);
+}
+
+function renderWhatsNew(entries) {
+  const el = document.createElement("div");
+  el.className = "modal-backdrop";
+  el.innerHTML = `
+    <div class="modal">
+      <h2 class="modal-title">Quoi de neuf ?</h2>
+      ${entries.map((e) => `
+        <div class="whatsnew-ver">
+          <div class="whatsnew-tag">version ${esc(e.version)}</div>
+          <ul>${e.changes.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>
+        </div>`).join("")}
+      <button class="btn-primary modal-ok">Compris</button>
+    </div>`;
+  el.addEventListener("click", (ev) => {
+    if (ev.target === el || ev.target.closest(".modal-ok")) el.remove();
+  });
+  document.body.appendChild(el);
+}
+
 // --- Démarrage --------------------------------------------------------------
 
 applyTheme(loadTheme());
@@ -196,3 +233,4 @@ showTab(DEFAULT_TAB);
 $("#update-btn").addEventListener("click", runUpdate);
 $("#update-close").addEventListener("click", dismissUpdate);
 updateInit();
+showWhatsNew();
