@@ -7,6 +7,14 @@
 
 export const CHANGELOG = [
   {
+    version: "0.1.3",
+    changes: [
+      "Carte interactive : Teyvat et sous-mondes (Enkanomiya, Mines du Gouffre…), plein écran, filtres de catégories mémorisés, suivi des points récupérés + import/export.",
+      "Fiches personnages : rôles clarifiés (Main DPS / Sub-DPS / Support).",
+      "Pop-up « Quoi de neuf » après chaque mise à jour.",
+    ],
+  },
+  {
     version: "0.1.2",
     changes: [
       "Fiches personnages : builds recommandés multi-rôles (armes, artéfacts, statistiques) agrégés depuis plusieurs guides.",
