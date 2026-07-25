@@ -109,5 +109,10 @@ pub async fn codes_redeem(db: State<'_, Db>, code: String) -> Result<codes::Rede
 
     let outcome = codes::redeem(&cookie, &account, &code).await?;
     db.set_code_status(&code, outcome.status, &outcome.message)?;
+    // Session d'échange périmée : on efface le cookie pour que l'UI repropose
+    // « Autoriser l'échange » (sinon elle se croit prête et masque le bouton).
+    if outcome.status == "auth" {
+        super::clear_redeem_cookie(db.inner())?;
+    }
     Ok(outcome)
 }

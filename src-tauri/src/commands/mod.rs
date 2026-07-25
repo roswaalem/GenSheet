@@ -95,6 +95,17 @@ pub(crate) fn stored_jar(db: &Db) -> Result<HashMap<String, String>> {
     }
 }
 
+/// Retire le cookie d'échange du bocal. Il expire indépendamment (et bien plus
+/// vite) que la session HoYoLAB : sans ça, l'app le croit encore valide et
+/// masque « Autoriser l'échange », laissant l'utilisateur bloqué.
+pub(crate) fn clear_redeem_cookie(db: &Db) -> Result<()> {
+    let mut jar = stored_jar(db)?;
+    if jar.remove("cookie_token_v2").is_some() {
+        db.set_setting(COOKIES_KEY, &serde_json::to_string(&jar)?)?;
+    }
+    Ok(())
+}
+
 /// Désérialise une valeur stockée en JSON, avec un message clair si la clé
 /// manque.
 pub(crate) fn load_setting<T: DeserializeOwned>(db: &Db, key: &str, missing: &str) -> Result<T> {
