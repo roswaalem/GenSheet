@@ -129,7 +129,7 @@ pub async fn fetch() -> Result<FarmData> {
             // Les types génériques (mora, EXP) n'ont rien à faire dans un plan.
             let farmable = info.r#type == "characterTalentMaterial"
                 || info.r#type == "weaponAscensionMaterial";
-            (in_domains.contains(&id) && farmable).then(|| (id, info.name))
+            (in_domains.contains(&id) && farmable).then_some((id, info.name))
         })
         .collect();
 
@@ -144,7 +144,7 @@ pub async fn fetch() -> Result<FarmData> {
                 .filter_map(|m| m.parse::<i64>().ok())
                 .filter(|m| materials.contains_key(m))
                 .collect();
-            (!needed.is_empty()).then(|| (id, needed))
+            (!needed.is_empty()).then_some((id, needed))
         })
         .collect();
 
@@ -231,7 +231,8 @@ pub fn plan(data: &FarmData, day: &str, avatar_ids: &[i64]) -> FarmPlan {
         })
         .collect();
 
-    domains.sort_by(|a, b| b.character_ids.len().cmp(&a.character_ids.len()));
+    // Les domaines les plus « rentables » (le plus de personnages) en tête.
+    domains.sort_by_key(|d| std::cmp::Reverse(d.character_ids.len()));
 
     FarmPlan {
         day: day.to_string(),

@@ -5,9 +5,12 @@
   "scripts": {
     "tauri": "tauri",
     "dev": "tauri dev",
-    "build": "tauri build"
+    "build": "tauri build",
+    "data": "node scripts/build-data.mjs"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2"
+    "@tauri-apps/cli": "^2",
+    "cheerio": "^1.2.0",
+    "genshin-db": "^5.2.12"
   }
 }

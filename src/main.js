@@ -1,557 +1,174 @@
-const { invoke } = window.__TAURI__.core;
+import { invoke, $ } from "./util.js";
+import { applyTheme, loadTheme } from "./theme.js";
+import { dashboard } from "./pages/dashboard.js";
+import { characters } from "./pages/characters.js";
+import { codes } from "./pages/codes.js";
+import { settings } from "./pages/settings.js";
+import { roadmap } from "./pages/roadmap.js";
+import { map } from "./pages/map.js";
 
-let install = null;
-let page = 1;
-const PER_PAGE = 15;
+// Écrans réellement implémentés. Les autres restent en placeholder.
+// Un module de page expose `render()` (son HTML) et `init()` (ses branchements).
+const PAGES = { dashboard, personnages: characters, codes, settings, roadmap, carte: map };
 
-const $ = (sel) => document.querySelector(sel);
+// --- Écrans -----------------------------------------------------------------
+// Source unique de la navigation : la sidebar et les pages en sont générées.
+// `id` = état `tab`, `desc` décrit ce que la page contiendra une fois conçue.
 
-document.querySelectorAll(".nav button").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".nav button").forEach((b) => b.classList.remove("active"));
-    document.querySelectorAll(".panel").forEach((p) => p.classList.remove("visible"));
-    btn.classList.add("active");
-    $("#" + btn.dataset.panel).classList.add("visible");
-  });
-});
-
-async function detect() {
-  try {
-    install = await invoke("detect_game");
-    $("#game-status").textContent = "Jeu détecté : " + install.game_dir;
-    $("#sync-btn").disabled = false;
-  } catch (e) {
-    $("#game-status").textContent = e;
-  }
-}
-
-async function syncWishes() {
-  const btn = $("#sync-btn");
-  btn.disabled = true;
-  btn.textContent = "Synchronisation…";
-  try {
-    const url = await invoke("get_wish_url", { dataDir: install.data_dir });
-    const report = await invoke("sync_wishes", { wishUrl: url });
-    $("#sync-status").textContent =
-      `${report.new_items} nouveaux tirages (UID ${report.uid ?? "?"})`;
-    await refresh();
-  } catch (e) {
-    $("#sync-status").textContent = e;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Synchroniser les vœux";
-  }
-}
-
-async function refresh() {
-  const s = await invoke("dashboard_stats");
-  $("#stat-total").textContent = s.total_wishes;
-  $("#stat-5").textContent = s.five_stars;
-  $("#stat-4").textContent = s.four_stars;
-  $("#stat-primos").textContent = s.primogems_spent.toLocaleString("fr-FR");
-  $("#stat-pity").textContent = s.pity_character;
-  await loadHistory();
-}
-
-async function loadHistory() {
-  const data = await invoke("wish_history", { page, perPage: PER_PAGE, rank: null });
-  const rows = data.items.map((w) =>
-    `<tr class="rank-${w.rank_type}"><td>${w.name}</td><td>${w.item_type}</td>` +
-    `<td>${w.rank_type}★</td><td>${w.time}</td></tr>`
-  ).join("");
-  $("#history tbody").innerHTML =
-    rows || `<tr><td colspan="4">Aucun tirage — lance une synchronisation.</td></tr>`;
-  const pages = Math.max(1, Math.ceil(data.total / PER_PAGE));
-  $("#page-label").textContent = `Page ${page} / ${pages}`;
-  $("#prev").disabled = page <= 1;
-  $("#next").disabled = page >= pages;
-}
-
-// --- HoYoLAB ---------------------------------------------------------------
-
-// API-provided strings end up in innerHTML: escape them.
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
-  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-
-function showAccount(account) {
-  $("#hoyolab-status").textContent =
-    `Connecté : ${account.nickname} — UID ${account.uid} (RA ${account.level})`;
-  $("#hoyolab-login-btn").hidden = true;
-  $("#hoyolab-capture-btn").hidden = true;
-  $("#hoyolab-refresh-btn").hidden = false;
-}
-
-async function hoyolabLogin() {
-  $("#hoyolab-msg").textContent =
-    "Connecte-toi dans la fenêtre qui s'ouvre, puis reviens ici et clique « J'ai terminé la connexion ».";
-  try {
-    await invoke("hoyolab_open_login");
-    $("#hoyolab-capture-btn").hidden = false;
-  } catch (e) {
-    $("#hoyolab-msg").textContent = e;
-  }
-}
-
-async function hoyolabCapture() {
-  const btn = $("#hoyolab-capture-btn");
-  btn.disabled = true;
-  try {
-    const account = await invoke("hoyolab_capture");
-    showAccount(account);
-    $("#hoyolab-msg").textContent = "";
-    await hoyolabRefresh();
-  } catch (e) {
-    $("#hoyolab-msg").textContent = e;
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-async function hoyolabRefresh() {
-  const btn = $("#hoyolab-refresh-btn");
-  btn.disabled = true;
-  try {
-    const p = await invoke("hoyolab_profile");
-    renderProfile(p);
-    $("#hoyolab-msg").textContent = "";
-  } catch (e) {
-    $("#hoyolab-msg").textContent = e;
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-function renderProfile(p) {
-  const s = p.stats;
-  $("#hoyolab-stats").hidden = false;
-  $("#hy-days").textContent = s.active_day_number;
-  $("#hy-achievements").textContent = s.achievement_number;
-  $("#hy-abyss").textContent = s.spiral_abyss || "–";
-  $("#hy-chests").textContent = (
-    s.common_chest_number + s.exquisite_chest_number + s.precious_chest_number +
-    s.luxurious_chest_number + s.magic_chest_number
-  ).toLocaleString("fr-FR");
-  $("#hy-oculi").textContent =
-    s.anemoculus_number + s.geoculus_number + s.dendroculus_number +
-    s.electroculus_number + s.hydroculus_number + s.pyroculus_number;
-  $("#hy-waypoints").textContent = `${s.way_point_number} / ${s.domain_number}`;
-
-  $("#chars-status").textContent =
-    `${p.avatars.length} personnages sur le compte ${p.account.nickname} (UID ${p.account.uid}).`;
-
-  $("#char-grid").innerHTML = p.avatars
-    .slice()
-    .sort((a, b) => b.rarity - a.rarity || b.level - a.level)
-    .map((a) => `
-      <div class="card char rarity-${a.rarity}" data-character="${a.id}" tabindex="0">
-        <img src="${esc(a.image)}" alt="" loading="lazy" />
-        <strong>${esc(a.name)}</strong>
-        <span class="muted">Nv. ${a.level} · C${a.actived_constellation_num} · ${esc(a.element)}</span>
-      </div>`)
-    .join("");
-
-  ownedAvatars = p.avatars;
-  loadFarm();
-
-  const ex = p.explorations.filter((e) => e.exploration_percentage > 0);
-  $("#explorations").hidden = ex.length === 0;
-  $("#explorations-list").innerHTML = ex
-    .map((e) => `
-      <div class="explo">
-        <span>${esc(e.name)}</span>
-        <div class="bar"><div style="width:${e.exploration_percentage / 10}%"></div></div>
-        <span class="muted">${(e.exploration_percentage / 10).toFixed(1)} %</span>
-      </div>`)
-    .join("");
-}
-
-// --- Codes promo -----------------------------------------------------------
-
-// Deux axes distincts : ce que disent les sources, et ce que j'en ai fait.
-const CODE_STATES = {
-  new: ["Jamais essayé", "pending"],
-  redeemed: ["Échangé", "ok"],
-  used: ["Déjà utilisé", "done"],
-  expired: ["Expiré", "done"],
-  invalid: ["Invalide", "done"],
-  cooldown: ["Limite atteinte", "warn"],
-  auth: ["Session à renouveler", "warn"],
-  error: ["Échec", "warn"],
-};
-
-// Seuls ces états décrivent un fait : les incidents techniques (cooldown,
-// session morte) ne se posent pas à la main, ils se corrigent en réessayant.
-const MANUAL_STATES = ["new", "redeemed", "used", "expired", "invalid"];
-
-// Un code non résolu : jamais échangé avec succès ni refusé définitivement.
-// Les échecs temporaires restent réessayables. Les codes morts, eux, ne sont
-// plus dans la liste du tout.
-const isPending = (c) => !["redeemed", "used", "expired", "invalid"].includes(c.status);
-
-let codesReady = false;
-let authWindowOpen = false;
-let authPolling = false;
-
-function statusSelect(c) {
-  // L'état courant peut être un incident : on l'affiche sans le proposer.
-  const options = MANUAL_STATES.includes(c.status)
-    ? MANUAL_STATES
-    : [c.status, ...MANUAL_STATES];
-  return `<select data-code="${esc(c.code)}" class="state">${options
-    .map((s) => {
-      const [label] = CODE_STATES[s] ?? [s];
-      return `<option value="${esc(s)}"${s === c.status ? " selected" : ""}>${label}</option>`;
-    })
-    .join("")}</select>`;
-}
-
-function renderCodes(view) {
-  codesReady = view.ready;
-  const pending = view.codes.filter(isPending).length;
-
-  const inventory = view.codes.length
-    ? `${view.codes.length} codes connus, ${pending} à essayer.`
-    : "Aucun code en mémoire — « Actualiser la liste » interroge les sources.";
-  $("#codes-status").textContent = view.needs_account
-    ? `${inventory} L'échange depuis l'app demande la connexion HoYoLAB du tableau de bord.`
-    : inventory;
-
-  const askAuth = view.needs_authorization && !view.needs_account;
-  $("#codes-auth-btn").hidden = !askAuth;
-  $("#codes-auth-help").hidden = !askAuth;
-  $("#codes-auth-done-btn").hidden = !askAuth || !authWindowOpen;
-  $("#codes-all-btn").hidden = !view.ready || pending === 0;
-  // Le bouton doit annoncer ce qu'il fait : sans autorisation, il ouvre la
-  // page officielle au lieu d'échanger.
-  $("#code-add-btn").textContent = view.ready
-    ? "Échanger ce code"
-    : "Ouvrir la page pour ce code";
-
-  $("#codes-table tbody").innerHTML = view.codes.length
-    ? view.codes.map((c) => {
-        const origin = c.last_seen
-          ? `${esc(c.source)} · vu le ${esc(c.last_seen.slice(0, 10))}`
-          : "saisi à la main";
-        const action = isPending(c)
-          ? `<button data-code="${esc(c.code)}" data-action="${codesReady ? "redeem" : "open"}">
-               ${codesReady ? "Échanger" : "Ouvrir la page"}</button>`
-          : "";
-        return `<tr>
-            <td><code>${esc(c.code)}</code><div class="muted">${origin}</div></td>
-            <td class="muted">${esc(c.rewards) || "—"}</td>
-            <td>${statusSelect(c)}
-                ${c.message ? `<div class="muted">${esc(c.message)}</div>` : ""}</td>
-            <td class="right">${action}</td>
-          </tr>`;
-      }).join("")
-    : `<tr><td colspan="4">Aucun code en mémoire.</td></tr>`;
-}
-
-async function setCodeStatus(event) {
-  const select = event.target.closest("select[data-code]");
-  if (!select) return;
-  try {
-    renderCodes(await invoke("codes_set_status", {
-      code: select.dataset.code,
-      status: select.value,
-    }));
-  } catch (e) {
-    $("#codes-msg").textContent = e;
-  }
-}
-
-async function codesLoad(command = "codes_list") {
-  try {
-    renderCodes(await invoke(command));
-  } catch (e) {
-    $("#codes-msg").textContent = e;
-  }
-}
-
-async function codesRefresh() {
-  const btn = $("#codes-refresh-btn");
-  btn.disabled = true;
-  $("#codes-msg").textContent = "Interrogation des sources…";
-  try {
-    const view = await invoke("codes_refresh");
-    renderCodes(view);
-    const { added, removed } = view.sync;
-    $("#codes-msg").textContent = added || removed
-      ? `${added} nouveau(x), ${removed} retiré(s) car plus publié(s).`
-      : "Liste déjà à jour.";
-  } catch (e) {
-    $("#codes-msg").textContent = e;
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-async function codesAuthorize() {
-  try {
-    await invoke("codes_open_gift", { code: null });
-    authWindowOpen = true;
-    $("#codes-auth-done-btn").hidden = false;
-    $("#codes-msg").textContent =
-      "Connexion sur la page officielle : la fenêtre se referme dès que c'est fait.";
-    pollAuthorization();
-  } catch (e) {
-    $("#codes-msg").textContent = e;
-  }
-}
-
-// Inutile de faire cliquer sur un second bouton : on surveille la fenêtre de
-// connexion jusqu'à ce que les cookies d'échange apparaissent.
-async function pollAuthorization() {
-  if (authPolling) return;
-  authPolling = true;
-  const deadline = Date.now() + 5 * 60 * 1000;
-  try {
-    while (Date.now() < deadline) {
-      await new Promise((done) => setTimeout(done, 2000));
-      // Une erreur ici signifie que la fenêtre a été fermée : on abandonne.
-      const view = await invoke("codes_authorize");
-      if (view) {
-        authWindowOpen = false;
-        renderCodes(view);
-        $("#codes-msg").textContent = "Échange autorisé.";
-        return;
-      }
-    }
-    $("#codes-msg").textContent =
-      "Connexion non détectée : « Vérifier la connexion » relance le contrôle.";
-  } catch {
-    authWindowOpen = false;
-    $("#codes-msg").textContent = "Fenêtre de connexion fermée avant la fin.";
-    await codesLoad();
-  } finally {
-    authPolling = false;
-  }
-}
-
-async function codesAuthorizeDone() {
-  try {
-    const view = await invoke("codes_authorize");
-    if (view) {
-      authWindowOpen = false;
-      renderCodes(view);
-      $("#codes-msg").textContent = "Échange autorisé.";
-    } else {
-      $("#codes-msg").textContent = "Connexion pas encore terminée sur la page officielle.";
-    }
-  } catch (e) {
-    authWindowOpen = false;
-    $("#codes-msg").textContent = e;
-  }
-}
-
-// L'API limite le débit : le backend attend 5 s entre deux échanges, donc
-// chaque appel peut bloquer d'autant.
-async function redeemOne(code) {
-  $("#codes-msg").textContent = `Échange de ${code}…`;
-  const outcome = await invoke("codes_redeem", { code });
-  $("#codes-msg").textContent = `${code} : ${outcome.message}`;
-  return outcome;
-}
-
-async function redeemFromTable(event) {
-  const btn = event.target.closest("button[data-code]");
-  if (!btn) return;
-  const code = btn.dataset.code;
-  if (btn.dataset.action === "open") {
-    await invoke("codes_open_gift", { code });
-    return;
-  }
-  btn.disabled = true;
-  try {
-    await redeemOne(code);
-    await codesLoad();
-  } catch (e) {
-    $("#codes-msg").textContent = e;
-    btn.disabled = false;
-  }
-}
-
-async function redeemAll() {
-  const btn = $("#codes-all-btn");
-  btn.disabled = true;
-  try {
-    const view = await invoke("codes_list");
-    const pending = view.codes.filter(isPending);
-    for (const [i, c] of pending.entries()) {
-      $("#codes-msg").textContent = `Échange ${i + 1}/${pending.length} : ${c.code}…`;
-      const outcome = await redeemOne(c.code);
-      // Inutile d'insister si la session est morte ou si l'API nous freine.
-      if (outcome.status === "auth" || outcome.status === "cooldown") break;
-    }
-    await codesLoad();
-  } catch (e) {
-    $("#codes-msg").textContent = e;
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-async function redeemTyped() {
-  const input = $("#code-input");
-  const code = input.value.trim();
-  if (!code) return;
-  if (!codesReady) {
-    await invoke("codes_open_gift", { code });
-    return;
-  }
-  try {
-    await redeemOne(code);
-    input.value = "";
-    await codesLoad();
-  } catch (e) {
-    $("#codes-msg").textContent = e;
-  }
-}
-
-// --- Farm ------------------------------------------------------------------
-
-const DAYS = [
-  ["monday", "Lun"], ["tuesday", "Mar"], ["wednesday", "Mer"], ["thursday", "Jeu"],
-  ["friday", "Ven"], ["saturday", "Sam"], ["sunday", "Dim"],
+const SCREENS = [
+  {
+    title: "Vue d'ensemble",
+    items: [
+      { id: "dashboard", label: "Tableau de bord", desc: "Jeu détecté, synchro des vœux, stats de compte HoYoLAB et historique des tirages." },
+      { id: "calendrier", label: "Calendrier", desc: "Grille hebdomadaire des bannières, resets, anniversaires et événements." },
+      { id: "codes", label: "Codes", desc: "Codes promotionnels : agrégation, échange en un clic et suivi personnel." },
+    ],
+  },
+  {
+    title: "Base de données",
+    items: [
+      { id: "personnages", label: "Personnages", desc: "Grille des personnages, filtres par élément, arme et rareté, accès aux fiches." },
+      { id: "armes", label: "Armes", desc: "Catalogue des armes : rareté, type, ATQ de base et statistique secondaire." },
+      { id: "artefacts", label: "Artéfacts", desc: "Sets d'artéfacts, effets 2 et 4 pièces, domaines associés." },
+      { id: "bestiaire", label: "Bestiaire", desc: "Monstres et boss par catégorie et région, avec leurs butins." },
+    ],
+  },
+  {
+    title: "Méta & guides",
+    items: [
+      { id: "tierlists", label: "Tier lists", desc: "Classements S→D des personnages, filtrables par élément." },
+      { id: "equipes", label: "Équipes", desc: "Compositions recommandées, réactions et rotations." },
+    ],
+  },
+  {
+    title: "Progression",
+    items: [
+      { id: "exploration", label: "Exploration", desc: "Progression par région : oculus, coffres et pourcentage." },
+      { id: "succes", label: "Succès", desc: "Succès par catégorie, avancement et primo-gemmes à la clé." },
+    ],
+  },
+  {
+    title: "Outils",
+    items: [
+      { id: "carte", label: "Carte interactive", desc: "Carte de Teyvat par région et par type de marqueur." },
+    ],
+  },
 ];
 
-// Le jour est calculé côté interface : seul le navigateur connaît le fuseau
-// local, et un sélecteur permet de préparer les jours suivants.
-let farmDay = DAYS[(new Date().getDay() + 6) % 7][0];
-let ownedAvatars = [];
+// Entrées du pied de sidebar — aussi des écrans à part entière.
+const FOOT = [
+  { id: "roadmap", label: "Feuille de route", badge: "design", desc: "Aide-mémoire de conception — à retirer de la version finale." },
+  { id: "donnees", label: "Données & CGUs", link: true, desc: "Sources de données et mentions légales (outil non officiel)." },
+  { id: "reglages", label: "Réglages", link: true, desc: "Langue, dossier du jeu, compte, apparence et gestion des données." },
+];
 
-function renderFarmDays() {
-  $("#farm-days").innerHTML = DAYS.map(([key, label]) =>
-    `<button data-day="${key}" class="day${key === farmDay ? " active" : ""}">${label}</button>`
+const DEFAULT_TAB = "dashboard";
+
+// --- Rendu du shell ---------------------------------------------------------
+
+/** Section d'origine + libellé + description d'un écran, par son id. */
+function screenInfo(id) {
+  for (const sec of SCREENS) {
+    const it = sec.items.find((i) => i.id === id);
+    if (it) return { eyebrow: sec.title, label: it.label, desc: it.desc };
+  }
+  const f = FOOT.find((i) => i.id === id);
+  return f ? { eyebrow: "Gensheet", label: f.label, desc: f.desc } : null;
+}
+
+function renderNav() {
+  $("#nav").innerHTML = SCREENS.map((sec) => `
+    <div class="nav-section">
+      <div class="nav-section-title">${sec.title}</div>
+      <div class="nav-section-items">
+        ${sec.items.map((it) => `
+          <button class="nav-item" data-tab="${it.id}">
+            <span class="bar"></span>
+            <span class="dot"></span>
+            <span>${it.label}</span>
+          </button>`).join("")}
+      </div>
+    </div>`).join("");
+
+  $("#sidebar-foot").innerHTML = FOOT.map((it) =>
+    it.link
+      ? `<button class="foot-link" data-tab="${it.id}">${it.label}</button>`
+      : `<button class="roadmap-btn" data-tab="${it.id}">
+           <span>${it.label}</span>
+           ${it.badge ? `<span class="badge">${it.badge}</span>` : ""}
+         </button>`
   ).join("");
 }
 
-async function loadFarm(refresh = false) {
-  if (!ownedAvatars.length) return;
-  $("#farm").hidden = false;
-  renderFarmDays();
-  $("#farm-msg").textContent = "Croisement des donjons et des matériaux…";
-  try {
-    const plan = await invoke("farm_plan", {
-      day: farmDay,
-      avatarIds: ownedAvatars.map((a) => a.id),
-      refresh,
-    });
-    renderFarm(plan);
-  } catch (e) {
-    $("#farm-msg").textContent = e;
-    $("#farm-list").innerHTML = "";
+function renderPages() {
+  const ids = [...SCREENS.flatMap((s) => s.items), ...FOOT].map((i) => i.id);
+  $("#pages").innerHTML = ids.map((id) => {
+    const t = screenInfo(id);
+    const body = PAGES[id] ? PAGES[id].render() : placeholder(t.desc);
+    return `
+      <section class="page" data-page="${id}">
+        <header class="page-header">
+          <div class="eyebrow">${t.eyebrow}</div>
+          <h1>${t.label}</h1>
+        </header>
+        ${body}
+      </section>`;
+  }).join("");
+
+  // Chaque page réelle câble ses événements et charge ses données.
+  for (const id of Object.keys(PAGES)) {
+    const el = document.querySelector(`.page[data-page='${id}']`);
+    if (el) PAGES[id].init(el);
   }
 }
 
-function renderFarm(plan) {
-  const byId = new Map(ownedAvatars.map((a) => [a.id, a]));
-  const total = plan.domains.reduce((n, d) => n + d.character_ids.length, 0);
+const placeholder = (desc) => `
+  <div class="panel placeholder">
+    <span class="glyph">◆</span>
+    <h2>À concevoir</h2>
+    <p>${desc}</p>
+    <span class="tag">bientôt</span>
+  </div>`;
 
-  const notes = [];
-  if (plan.day === "sunday") notes.push("Dimanche : tous les donjons sont ouverts.");
-  if (plan.unknown_ids.length) {
-    notes.push(`${plan.unknown_ids.length} personnage(s) absent(s) des données Ambr.`);
-  }
-  $("#farm-msg").textContent = plan.domains.length
-    ? `${plan.domains.length} donjon(s), ${total} personnage(s) concerné(s). ${notes.join(" ")}`
-    : `Aucun donjon utile ce jour-là. ${notes.join(" ")}`;
-
-  $("#farm-list").innerHTML = plan.domains.map((d) => `
-    <div class="domain">
-      <div class="domain-head">
-        <strong>${esc(d.name)}</strong>
-        <span class="muted">${d.materials.map(esc).join(", ") || "—"}</span>
-      </div>
-      <div class="domain-chars">
-        ${d.character_ids.map((id) => {
-          const a = byId.get(id);
-          if (!a) return "";
-          return `<span class="chip rarity-${a.rarity}">
-              <img src="${esc(a.image)}" alt="" loading="lazy" />${esc(a.name)}</span>`;
-        }).join("")}
-      </div>
-    </div>`).join("");
+function showTab(id) {
+  document.querySelectorAll("[data-tab]")
+    .forEach((b) => b.classList.toggle("active", b.dataset.tab === id));
+  document.querySelectorAll(".page")
+    .forEach((p) => p.classList.toggle("active", p.dataset.page === id));
+  $(".main").scrollTop = 0;
+  // Certaines pages (carte) doivent s'initialiser une fois visibles.
+  PAGES[id]?.onShow?.();
 }
 
-// --- Analyse d'un personnage -----------------------------------------------
-
-async function openBuild(characterId) {
-  const card = $("#build");
-  card.hidden = false;
-  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  $("#build-msg").textContent = "Lecture des artéfacts…";
-  $("#build-body").innerHTML = "";
-  try {
-    renderBuild(await invoke("hoyolab_character_build", { characterId }));
-  } catch (e) {
-    $("#build-msg").textContent = e;
-  }
+function wireNav() {
+  $(".sidebar").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-tab]");
+    if (btn) showTab(btn.dataset.tab);
+  });
 }
 
-function renderBuild(b) {
-  const c = b.character;
-  $("#build-title").textContent = c.name;
-  $("#build-msg").textContent =
-    `Nv. ${c.level} · C${c.actived_constellation_num} · ${b.weapon}` +
-    (b.weapon_level ? ` (Nv. ${b.weapon_level}, R${b.weapon_refinement})` : "") +
-    ` · valeur critique ${b.crit_value.toFixed(1)}`;
+// --- Mises à jour -----------------------------------------------------------
 
-  const conseils = b.advice.length
-    ? `<div class="advice"><strong>Conseillé par HoYoLAB</strong>${
-        b.advice.map((a) => `<div class="muted">${esc(a)}</div>`).join("")}</div>`
-    : "";
-
-  const artefacts = b.relics.length
-    ? `<div class="artifacts">${b.relics.map((r) => {
-        // main_ok vaut null sur la fleur et la plume : rien à juger.
-        const verdict = r.main_ok === null ? ""
-          : r.main_ok ? `<span class="badge ok">adaptée</span>`
-                      : `<span class="badge warn">hors conseils</span>`;
-        return `
-          <div class="artifact rarity-${r.rarity}">
-            <div class="artifact-head">
-              <strong>${esc(r.slot)}</strong>
-              <span class="muted">+${r.level} · ${esc(r.set)}</span>
-            </div>
-            <div class="artifact-main">${esc(r.main.label)} ${esc(r.main.value)} ${verdict}</div>
-            ${r.subs.length ? r.subs.map((s) => `
-              <div class="sub${s.wanted ? " wanted" : ""}">
-                <span>${esc(s.label)}</span>
-                <span>${esc(s.value)}</span>
-                <span class="muted">${s.times ? "×" + (s.times + 1) : ""}</span>
-              </div>`).join("") : `<div class="sub"><span class="muted">Aucune sous-statistique</span></div>`}
-          </div>`;
-      }).join("")}</div>`
-    : `<p class="muted">Aucun artéfact équipé.</p>`;
-
-  $("#build-body").innerHTML = conseils + artefacts;
-}
-
-async function hoyolabInit() {
-  try {
-    const account = await invoke("hoyolab_account");
-    if (account) {
-      showAccount(account);
-      await hoyolabRefresh();
-    }
-  } catch (e) {
-    $("#hoyolab-msg").textContent = e;
-  }
-}
-
-// --- Mises à jour ----------------------------------------------------------
+// Version rejetée par l'utilisateur : la bannière ne réapparaît plus pour elle.
+const DISMISSED_KEY = "gensheet.dismissedUpdate";
+let pendingVersion = null;
 
 async function updateInit() {
   try {
     // Le backend renvoie null hors ligne : aucun message d'erreur au démarrage.
     const info = await invoke("update_check");
-    if (!info) return;
+    if (!info || localStorage.getItem(DISMISSED_KEY) === info.version) return;
+    pendingVersion = info.version;
     $("#update-version").textContent = `${info.current} → ${info.version}`;
     $("#update-banner").hidden = false;
   } catch {
     // Un contrôle de mise à jour raté ne doit jamais gêner le démarrage.
   }
+}
+
+function dismissUpdate() {
+  $("#update-banner").hidden = true;
+  if (pendingVersion) localStorage.setItem(DISMISSED_KEY, pendingVersion);
 }
 
 async function runUpdate() {
@@ -568,36 +185,14 @@ async function runUpdate() {
   }
 }
 
-$("#sync-btn").addEventListener("click", syncWishes);
-$("#prev").addEventListener("click", () => { page--; loadHistory(); });
-$("#next").addEventListener("click", () => { page++; loadHistory(); });
-$("#hoyolab-login-btn").addEventListener("click", hoyolabLogin);
-$("#hoyolab-capture-btn").addEventListener("click", hoyolabCapture);
-$("#hoyolab-refresh-btn").addEventListener("click", hoyolabRefresh);
-$("#codes-refresh-btn").addEventListener("click", codesRefresh);
-$("#codes-auth-btn").addEventListener("click", codesAuthorize);
-$("#codes-auth-done-btn").addEventListener("click", codesAuthorizeDone);
-$("#codes-all-btn").addEventListener("click", redeemAll);
-$("#code-add-btn").addEventListener("click", redeemTyped);
-$("#code-input").addEventListener("keydown", (e) => { if (e.key === "Enter") redeemTyped(); });
-$("#codes-table tbody").addEventListener("click", redeemFromTable);
-$("#codes-table tbody").addEventListener("change", setCodeStatus);
-$("#char-grid").addEventListener("click", (e) => {
-  const card = e.target.closest("[data-character]");
-  if (card) openBuild(Number(card.dataset.character));
-});
-$("#build-close").addEventListener("click", () => { $("#build").hidden = true; });
-$("#farm-days").addEventListener("click", (e) => {
-  const btn = e.target.closest("button[data-day]");
-  if (!btn) return;
-  farmDay = btn.dataset.day;
-  loadFarm();
-});
+// --- Démarrage --------------------------------------------------------------
+
+applyTheme(loadTheme());
+renderNav();
+renderPages();
+wireNav();
+showTab(DEFAULT_TAB);
 
 $("#update-btn").addEventListener("click", runUpdate);
-$("#update-close").addEventListener("click", () => { $("#update-banner").hidden = true; });
-
-detect().then(refresh);
-hoyolabInit();
-codesLoad();
+$("#update-close").addEventListener("click", dismissUpdate);
 updateInit();

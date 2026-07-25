@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:#07060d;}
+    ::selection{background:rgba(224,90,114,.35);color:#fff}
+    a{color:#f0808f;text-decoration:none}
+    a:hover{color:#ff9aa6}
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(224,90,114,.26);border-radius:8px}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(224,90,114,.42)}
+    ::-webkit-scrollbar-track{background:transparent}
+    input::placeholder{color:rgba(236,231,239,.35)}
+    @keyframes gsTwinkle{0%,100%{opacity:.42}50%{opacity:.7}}
+    @keyframes gsUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  </style>
+</helmet>
+<div style="position:relative;display:flex;height:100vh;overflow:hidden;font-family:Manrope,system-ui,sans-serif;color:#ece7ef;">
+
+  <div style="position:absolute;inset:0;z-index:0;background:radial-gradient(140% 120% at 50% -12%, #18101d 0%, #0d0913 44%, #070510 100%);"></div>
+  <div style="position:absolute;inset:0;z-index:0;opacity:{{ nebOpacity }};background:radial-gradient(58% 54% at 74% 22%, rgba(224,90,114,.34), transparent 58%), radial-gradient(44% 40% at 80% 20%, rgba(240,120,150,.22), transparent 60%), radial-gradient(42% 52% at 18% 84%, rgba(150,120,220,.20), transparent 62%), radial-gradient(9% 11% at 76% 24%, rgba(255,236,231,.55), transparent 70%);filter:blur(4px);pointer-events:none;"></div>
+  <div style="position:absolute;inset:0;z-index:0;background-image:radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.7), transparent),radial-gradient(1px 1px at 70% 62%, rgba(255,255,255,.5), transparent),radial-gradient(1px 1px at 41% 82%, rgba(255,255,255,.6), transparent),radial-gradient(1.5px 1.5px at 85% 24%, rgba(255,255,255,.55), transparent),radial-gradient(1px 1px at 55% 14%, rgba(255,255,255,.45), transparent),radial-gradient(1px 1px at 9% 68%, rgba(255,255,255,.5), transparent),radial-gradient(1px 1px at 33% 52%, rgba(255,255,255,.4), transparent);background-repeat:repeat;background-size:330px 330px;opacity:.6;animation:gsTwinkle 7s ease-in-out infinite;pointer-events:none;"></div>
+  <div style="position:absolute;inset:0;z-index:0;background:radial-gradient(120% 92% at 50% 42%, transparent 54%, rgba(4,2,8,.74) 100%);pointer-events:none;"></div>
+
+  <aside style="position:relative;z-index:2;width:256px;flex:none;height:100vh;display:flex;flex-direction:column;background:linear-gradient(180deg, rgba(17,11,23,.82), rgba(10,7,16,.9));backdrop-filter:blur(16px);border-right:1px solid rgba(255,255,255,.07);">
+    <div style="display:flex;align-items:center;gap:12px;padding:22px 18px 18px;">
+      <div style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(150deg, {{ acSoft }}, rgba(255,255,255,.03));border:1px solid {{ acLine }};box-shadow:0 0 20px {{ acGlow }};font:700 19px 'Space Grotesk';color:{{ ac }};">✦</div>
+      <div>
+        <div style="font:700 20px 'Space Grotesk';letter-spacing:.01em;color:#f4eff7;line-height:1;">GenSheet</div>
+        <div style="font:600 10px Manrope;letter-spacing:.16em;text-transform:uppercase;color:rgba(236,231,239,.38);margin-top:4px;">Wiki de Teyvat</div>
+      </div>
+    </div>
+
+    <nav style="flex:1;overflow-y:auto;padding:6px 12px;display:flex;flex-direction:column;gap:16px;">
+      <sc-for list="{{ navSections }}" as="sec" hint-placeholder-count="5">
+        <div>
+          <div style="padding:2px 12px 8px;font:600 10px 'Space Grotesk';letter-spacing:.18em;text-transform:uppercase;color:rgba(236,231,239,.32);">{{ sec.title }}</div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="3">
+              <button onClick="{{ it.onClick }}" style="position:relative;display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:none;cursor:pointer;padding:9px 12px 9px 15px;border-radius:11px;font:500 13.5px Manrope;color:{{ it.color }};background:{{ it.bg }};transition:background .15s,color .15s;" style-hover="background:rgba(255,255,255,.05);color:#fff;">
+                <span style="position:absolute;left:3px;top:50%;transform:translateY(-50%);width:3px;height:16px;border-radius:3px;background:{{ ac }};opacity:{{ it.barOp }};box-shadow:0 0 8px {{ acLine }};"></span>
+                <span style="width:6px;height:6px;border-radius:2px;transform:rotate(45deg);background:{{ it.dot }};flex:none;"></span>
+                <span>{{ it.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </nav>
+
+    <div style="padding:12px 12px 16px;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:4px;">
+      <button onClick="{{ roadmapNav.onClick }}" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;cursor:pointer;padding:10px 12px;border-radius:11px;border:1px dashed {{ acLine }};background:{{ roadmapNav.bg }};color:{{ roadmapNav.fg }};font:600 13px Manrope;transition:background .15s;" style-hover="background:rgba(255,255,255,.05);">
+        <span style="width:6px;height:6px;border-radius:2px;transform:rotate(45deg);background:{{ ac }};flex:none;"></span>
+        Feuille de route
+        <span style="margin-left:auto;font:600 8.5px 'Space Grotesk';letter-spacing:.12em;text-transform:uppercase;color:{{ ac }};background:{{ acSoft }};padding:3px 7px;border-radius:20px;">design</span>
+      </button>
+      <button onClick="{{ goDonnees }}" style="text-align:left;cursor:pointer;padding:8px 12px;border:none;background:transparent;color:rgba(236,231,239,.48);font:500 12.5px Manrope;border-radius:9px;transition:all .15s;" style-hover="color:#fff;background:rgba(255,255,255,.04);">Données &amp; CGUs</button>
+      <button onClick="{{ goReglages }}" style="text-align:left;cursor:pointer;padding:8px 12px;border:none;background:transparent;color:rgba(236,231,239,.48);font:500 12.5px Manrope;border-radius:9px;transition:all .15s;" style-hover="color:#fff;background:rgba(255,255,255,.04);">Réglages, GitHub…</button>
+    </div>
+  </aside>
+
+  <main style="position:relative;z-index:1;flex:1;min-width:0;overflow-y:auto;">
+    <div style="max-width:1240px;margin:0 auto;padding:{{ wrapPad }};">
+
+      <sc-if value="{{ showChars }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;">
+            <div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Base de données</div>
+            <h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Personnages</h1>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div style="display:inline-flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:4px;gap:4px;">
+              <button onClick="{{ scopeMine.onClick }}" style="border:none;cursor:pointer;padding:8px 16px;border-radius:9px;font:600 13px Manrope;color:{{ scopeMine.fg }};background:{{ scopeMine.bg }};transition:all .15s;">Mes personnages</button>
+              <button onClick="{{ scopeAll.onClick }}" style="border:none;cursor:pointer;padding:8px 16px;border-radius:9px;font:600 13px Manrope;color:{{ scopeAll.fg }};background:{{ scopeAll.bg }};transition:all .15s;">Tous les personnages</button>
+            </div>
+            <div style="flex:1;min-width:200px;">
+              <input value="{{ q }}" onInput="{{ onSearch }}" placeholder="Rechercher un personnage…" style="width:100%;padding:11px 15px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#f2edf6;font:500 13.5px Manrope;outline:none;transition:all .15s;" style-focus="border-color:{{ acLine }};background:rgba(255,255,255,.06);" />
+            </div>
+            <div style="display:flex;gap:8px;">
+              <sc-for list="{{ rarChips }}" as="r" hint-placeholder-count="2">
+                <button onClick="{{ r.toggle }}" style="border:1px solid {{ r.border }};background:{{ r.bg }};color:{{ r.fg }};cursor:pointer;padding:8px 14px;border-radius:20px;font:600 12.5px 'Space Grotesk';transition:all .15s;">{{ r.label }}</button>
+              </sc-for>
+            </div>
+            <button onClick="{{ toggleHelp }}" style="width:36px;height:36px;flex:none;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#cfc7da;cursor:pointer;font:600 15px 'Space Grotesk';transition:all .15s;" style-hover="border-color:{{ acLine }};color:#fff;">?</button>
+          </div>
+
+          <sc-if value="{{ help }}">
+            <div style="margin:14px 0 0;padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid {{ acLine }};border-radius:12px;color:#c9c1d4;font:500 13px/1.6 Manrope;">{{ helpText }}</div>
+          </sc-if>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;">
+            <sc-for list="{{ elChips }}" as="c" hint-placeholder-count="7">
+              <button onClick="{{ c.toggle }}" style="display:inline-flex;align-items:center;gap:8px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};cursor:pointer;padding:7px 13px;border-radius:20px;font:600 12.5px Manrope;transition:all .15s;">
+                <span style="width:9px;height:9px;border-radius:50%;background:{{ c.color }};box-shadow:0 0 7px {{ c.color }};"></span>{{ c.label }}
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;">
+            <sc-for list="{{ wpChips }}" as="c" hint-placeholder-count="5">
+              <button onClick="{{ c.toggle }}" style="border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};cursor:pointer;padding:7px 13px;border-radius:20px;font:600 12.5px Manrope;transition:all .15s;">{{ c.label }}</button>
+            </sc-for>
+          </div>
+
+          <div style="margin:18px 2px 16px;font:500 13px Manrope;color:rgba(236,231,239,.55);">{{ countLabel }}</div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ cardMin }},1fr));gap:{{ gap }};">
+            <sc-for list="{{ chars }}" as="c" hint-placeholder-count="18">
+              <div onClick="{{ c.open }}" style="cursor:pointer;border-radius:16px;overflow:hidden;position:relative;background:linear-gradient(180deg, {{ c.tintA }}, {{ c.tintB }});border:1px solid {{ c.tintBorder }};transition:transform .18s,box-shadow .18s;" style-hover="transform:translateY(-4px);box-shadow:0 16px 40px {{ c.glow }};">
+                <div style="position:relative;aspect-ratio:1/1.16;background:{{ c.portrait }};">
+                  <div style="position:absolute;top:9px;left:9px;width:24px;height:24px;border-radius:50%;background:{{ c.elColor }};box-shadow:0 0 0 3px rgba(8,6,13,.55),0 0 12px {{ c.elColor }};"></div>
+                  <div style="position:absolute;top:10px;right:9px;font:700 10.5px 'Space Grotesk';color:#120a0e;background:{{ c.rarColor }};padding:2px 7px;border-radius:20px;">{{ c.rarLabel }}</div>
+                  <div style="position:absolute;left:0;right:0;bottom:0;padding:24px 8px 8px;text-align:center;font:500 8.5px ui-monospace,monospace;color:rgba(255,255,255,.42);letter-spacing:.04em;background:linear-gradient(180deg,transparent,rgba(8,6,13,.5));">{{ c.labelArt }}</div>
+                </div>
+                <div style="padding:9px 10px 11px;text-align:center;background:{{ c.plate }};">
+                  <div style="font:600 14px/1.1 'Space Grotesk';color:#f3eef6;">{{ c.name }}</div>
+                  <div style="font:500 10.5px Manrope;color:rgba(236,231,239,.6);margin-top:3px;">{{ c.sub }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ noResults }}">
+            <div style="text-align:center;padding:70px 20px;color:rgba(236,231,239,.4);font:500 15px Manrope;">Aucun personnage ne correspond à ces filtres.</div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showEmpty }}">
+        <div style="animation:gsUp .4s ease both;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64vh;text-align:center;">
+          <div style="width:78px;height:78px;border-radius:22px;display:grid;place-items:center;background:linear-gradient(150deg, {{ acSoft }}, rgba(255,255,255,.02));border:1px solid {{ acLine }};box-shadow:0 0 40px {{ acGlow }};font:700 30px 'Space Grotesk';color:{{ ac }};margin-bottom:24px;">✦</div>
+          <h2 style="margin:0 0 12px;font:600 27px 'Space Grotesk';color:#f3eff7;">{{ emptyInfo.title }}</h2>
+          <p style="margin:0 0 22px;max-width:460px;font:500 14.5px/1.7 Manrope;color:rgba(236,231,239,.55);">{{ emptyInfo.desc }}</p>
+          <div style="display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border-radius:20px;background:{{ acSoft }};border:1px solid {{ acLine }};color:{{ ac }};font:600 11.5px 'Space Grotesk';letter-spacing:.1em;text-transform:uppercase;">À concevoir</div>
+          <button onClick="{{ goRoadmap }}" style="margin-top:22px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#e7e1ee;cursor:pointer;padding:10px 18px;border-radius:11px;font:600 13px Manrope;transition:all .15s;" style-hover="background:rgba(255,255,255,.07);">Voir la feuille de route →</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDashboard }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Vue d'ensemble</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Tableau de bord</h1></div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px 22px;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px;">
+            <div><div style="font:600 10px Manrope;letter-spacing:.12em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:4px;">Jeu détecté</div><div style="font:500 13px ui-monospace,monospace;color:#dcd6e6;">{{ page.gamePath }}</div></div>
+            <button style="border:none;cursor:pointer;padding:10px 16px;border-radius:11px;font:600 13px Manrope;color:#fff;background:linear-gradient(90deg, {{ ac }}, {{ acLine }});box-shadow:0 6px 20px {{ acGlow }};">Synchroniser les vœux</button>
+          </div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px 22px;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px;">
+            <div style="font:600 14px Manrope;color:#ece7ef;">Connecté : {{ page.acct.name }} — UID {{ page.acct.uid }} <span style="color:rgba(236,231,239,.5);">(RA {{ page.acct.ra }})</span></div>
+            <button style="border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#e7e1ee;cursor:pointer;padding:9px 15px;border-radius:11px;font:600 13px Manrope;">Rafraîchir le profil</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:14px;">
+            <sc-for list="{{ page.stats }}" as="st" hint-placeholder-count="6"><div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px;position:relative;overflow:hidden;"><div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg, {{ ac }}, transparent);"></div><div style="font:700 26px 'Space Grotesk';color:#f6f1f9;">{{ st.v }}</div><div style="font:500 12px Manrope;color:rgba(236,231,239,.5);margin-top:4px;">{{ st.l }}</div></div></sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:22px;">
+            <sc-for list="{{ page.wishStats }}" as="st" hint-placeholder-count="5"><div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px;"><div style="font:700 24px 'Space Grotesk';color:{{ ac }};">{{ st.v }}</div><div style="font:500 12px Manrope;color:rgba(236,231,239,.5);margin-top:4px;">{{ st.l }}</div></div></sc-for>
+          </div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+            <div style="margin:0 0 6px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Historique des tirages</div>
+            <div style="display:grid;grid-template-columns:2fr 1fr 0.7fr 1.2fr;gap:10px;padding:10px 6px;border-bottom:1px solid rgba(255,255,255,.1);font:600 10px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.4);"><span>Nom</span><span>Type</span><span>Rareté</span><span>Date</span></div>
+            <sc-for list="{{ page.wishes }}" as="w" hint-placeholder-count="10"><div style="display:grid;grid-template-columns:2fr 1fr 0.7fr 1.2fr;gap:10px;align-items:center;padding:11px 6px;border-bottom:1px solid rgba(255,255,255,.05);"><span style="font:600 13px Manrope;color:{{ w.nameColor }};">{{ w.name }}</span><span style="font:500 12.5px Manrope;color:rgba(236,231,239,.6);">{{ w.type }}</span><span style="font:600 12.5px 'Space Grotesk';color:{{ w.rarColor }};">{{ w.rarity }}</span><span style="font:500 12px Manrope;color:rgba(236,231,239,.5);">{{ w.date }}</span></div></sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCalendrier }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Suivi</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Calendrier</h1></div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);margin-bottom:18px;">
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px;">
+              <sc-for list="{{ page.days }}" as="d" hint-placeholder-count="7">
+                <div style="min-height:132px;border-radius:12px;padding:10px;background:{{ d.bg }};border:1px solid {{ d.border }};">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px;"><span style="font:600 11px Manrope;letter-spacing:.08em;text-transform:uppercase;color:rgba(236,231,239,.5);">{{ d.name }}</span><span style="font:700 16px 'Space Grotesk';color:#f2edf6;">{{ d.date }}</span></div>
+                  <div style="display:flex;flex-direction:column;gap:5px;"><sc-for list="{{ d.events }}" as="e" hint-placeholder-count="2"><span style="font:500 10px Manrope;color:{{ e.fg }};background:{{ e.bg }};padding:3px 7px;border-radius:7px;">{{ e.l }}</span></sc-for></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;">
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+              <div style="margin:0 0 12px;font:600 12px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:{{ ac }};">Farm du jour</div>
+              <sc-for list="{{ page.farm }}" as="f" hint-placeholder-count="4"><div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);"><div style="font:600 12.5px Manrope;color:#e6e0ee;margin-bottom:6px;">{{ f.day }}</div><div style="display:flex;flex-wrap:wrap;gap:6px;"><sc-for list="{{ f.books }}" as="b" hint-placeholder-count="3"><span style="font:500 10.5px Manrope;color:#c8c0d0;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:8px;">{{ b }}</span></sc-for></div></div></sc-for>
+            </div>
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+              <div style="margin:0 0 12px;font:600 12px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:{{ ac }};">Anniversaires</div>
+              <sc-for list="{{ page.birthdays }}" as="b" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);"><div style="width:38px;height:38px;border-radius:50%;background:{{ b.disc.portrait }};border:2px solid {{ b.disc.color }};flex:none;"></div><div style="flex:1;"><div style="font:600 13px Manrope;color:#e6e0ee;">{{ b.name }}</div><div style="font:500 11.5px Manrope;color:rgba(236,231,239,.45);">{{ b.date }}</div></div></div></sc-for>
+            </div>
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+              <div style="margin:0 0 12px;font:600 12px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:{{ ac }};">Événements</div>
+              <sc-for list="{{ page.events }}" as="e" hint-placeholder-count="4"><div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);"><div style="font:600 12.5px Manrope;color:#e6e0ee;">{{ e.l }}</div><div style="font:500 11.5px Manrope;color:{{ ac }};margin-top:2px;">{{ e.when }}</div></div></sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCodes }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Suivi</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Codes</h1></div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px 22px;backdrop-filter:blur(6px);margin-bottom:18px;">
+            <div style="font:500 13px Manrope;color:rgba(236,231,239,.6);margin-bottom:12px;">{{ page.known }} codes connus, {{ page.toTry }} à essayer.</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <button style="border:none;cursor:pointer;padding:10px 16px;border-radius:11px;font:600 13px Manrope;color:#fff;background:linear-gradient(90deg, {{ ac }}, {{ acLine }});">Actualiser la liste</button>
+              <input placeholder="Saisir un code à la main" style="flex:1;min-width:200px;padding:10px 14px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#f2edf6;font:500 13px Manrope;outline:none;" style-focus="border-color:{{ acLine }};" />
+              <button style="border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#e7e1ee;cursor:pointer;padding:10px 15px;border-radius:11px;font:600 13px Manrope;">Échanger ce code</button>
+            </div>
+          </div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px 22px;backdrop-filter:blur(6px);">
+            <div style="display:grid;grid-template-columns:1.3fr 2fr 1.1fr;gap:14px;padding:12px 6px;border-bottom:1px solid rgba(255,255,255,.1);font:600 10px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.4);"><span>Code</span><span>Récompenses</span><span>Mon état</span></div>
+            <sc-for list="{{ page.list }}" as="c" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:1.3fr 2fr 1.1fr;gap:14px;align-items:center;padding:14px 6px;border-bottom:1px solid rgba(255,255,255,.05);">
+                <div><div style="font:700 13px ui-monospace,monospace;letter-spacing:.05em;color:{{ ac }};">{{ c.code }}</div><div style="font:500 11px Manrope;color:rgba(236,231,239,.42);margin-top:3px;">{{ c.src }} · vu le {{ c.date }}</div></div>
+                <div style="font:500 12.5px/1.5 Manrope;color:#d8d2e0;">{{ c.rewards }}</div>
+                <div><select value="{{ c.state }}" onChange="{{ c.onChange }}" style="width:100%;padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(18,12,24,.95);color:#e6e0ee;font:600 12px Manrope;cursor:pointer;"><option value="À essayer">À essayer</option><option value="Déjà utilisé">Déjà utilisé</option><option value="Échangé">Échangé</option><option value="Invalide">Invalide</option></select><div style="font:500 11px Manrope;color:rgba(236,231,239,.42);margin-top:5px;">{{ c.note }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isArmes }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:20px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Base de données</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Armes</h1></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:6px;">
+            <input value="{{ page.q }}" onInput="{{ page.onSearch }}" placeholder="Rechercher une arme…" style="flex:1;min-width:200px;padding:11px 15px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#f2edf6;font:500 13.5px Manrope;outline:none;" style-focus="border-color:{{ acLine }};" />
+            <div style="display:flex;gap:8px;"><sc-for list="{{ page.rarChips }}" as="r" hint-placeholder-count="3"><button onClick="{{ r.onClick }}" style="border:1px solid {{ r.border }};background:{{ r.bg }};color:{{ r.fg }};cursor:pointer;padding:8px 13px;border-radius:20px;font:600 12.5px 'Space Grotesk';">{{ r.label }}</button></sc-for></div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0;"><sc-for list="{{ page.typeChips }}" as="t" hint-placeholder-count="5"><button onClick="{{ t.onClick }}" style="border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};cursor:pointer;padding:7px 13px;border-radius:20px;font:600 12.5px Manrope;">{{ t.label }}</button></sc-for></div>
+          <div style="margin:16px 2px;font:500 13px Manrope;color:rgba(236,231,239,.55);">{{ page.count }}</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;">
+            <sc-for list="{{ page.list }}" as="w" hint-placeholder-count="12">
+              <div style="border-radius:14px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid {{ w.border }};">
+                <div style="aspect-ratio:1;background:{{ w.stripe }};position:relative;"><div style="position:absolute;top:8px;right:8px;font:700 10px 'Space Grotesk';color:#120a0e;background:{{ w.rarColor }};padding:2px 7px;border-radius:20px;">{{ w.rar }}</div></div>
+                <div style="padding:11px 12px 13px;"><div style="font:600 13px 'Space Grotesk';color:#f3eef6;line-height:1.2;">{{ w.n }}</div><div style="font:500 11px Manrope;color:rgba(236,231,239,.5);margin-top:3px;">{{ w.typeLabel }}</div><div style="display:flex;justify-content:space-between;margin-top:9px;font:600 11.5px Manrope;color:#ded8e6;"><span>ATQ {{ w.atk }}</span><span style="color:rgba(236,231,239,.55);">{{ w.sub }}</span></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isArtefacts }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Base de données</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Artéfacts</h1></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;">
+            <sc-for list="{{ page.sets }}" as="a" hint-placeholder-count="6">
+              <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;"><span style="width:11px;height:11px;border-radius:50%;background:{{ a.elColor }};box-shadow:0 0 8px {{ a.elColor }};flex:none;"></span><div style="font:600 15px 'Space Grotesk';color:#f2edf6;">{{ a.n }}</div></div>
+                <div style="display:flex;gap:8px;margin-bottom:16px;"><sc-for list="{{ a.pieces }}" as="p" hint-placeholder-count="5"><div style="flex:1;aspect-ratio:1;border-radius:9px;background:{{ p }};border:1px solid rgba(255,255,255,.08);"></div></sc-for></div>
+                <div style="margin-bottom:10px;"><span style="font:700 10px 'Space Grotesk';color:{{ a.elColor }};letter-spacing:.08em;">2 PIÈCES</span><div style="font:500 12.5px/1.5 Manrope;color:#d8d2e0;margin-top:3px;">{{ a.p2 }}</div></div>
+                <div style="margin-bottom:14px;"><span style="font:700 10px 'Space Grotesk';color:{{ a.elColor }};letter-spacing:.08em;">4 PIÈCES</span><div style="font:500 12.5px/1.5 Manrope;color:#d8d2e0;margin-top:3px;">{{ a.p4 }}</div></div>
+                <div style="font:500 11.5px Manrope;color:rgba(236,231,239,.45);border-top:1px solid rgba(255,255,255,.06);padding-top:11px;">{{ a.dom }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isTierlists }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:18px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Méta & guides</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Tier lists</h1></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;"><sc-for list="{{ page.elTabs }}" as="t" hint-placeholder-count="8"><button onClick="{{ t.onClick }}" style="border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};cursor:pointer;padding:7px 14px;border-radius:20px;font:600 12.5px Manrope;">{{ t.label }}</button></sc-for></div>
+          <sc-for list="{{ page.rows }}" as="r" hint-placeholder-count="4">
+            <div style="display:flex;gap:14px;align-items:stretch;margin-bottom:12px;">
+              <div style="width:70px;flex:none;display:grid;place-items:center;border-radius:14px;background:{{ r.bg }};border:1px solid {{ r.border }};font:700 30px 'Space Grotesk';color:{{ r.color }};">{{ r.label }}</div>
+              <div style="flex:1;display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);min-height:78px;">
+                <sc-for list="{{ r.chars }}" as="m" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;align-items:center;gap:5px;width:56px;"><div style="width:46px;height:46px;border-radius:50%;background:{{ m.portrait }};border:2px solid {{ m.color }};box-shadow:0 0 10px {{ m.glow }};"></div><span style="font:600 10px Manrope;color:#ded8e6;text-align:center;line-height:1.1;">{{ m.name }}</span></div></sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isEquipes }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Méta & guides</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Équipes</h1></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;">
+            <sc-for list="{{ page.teams }}" as="t" hint-placeholder-count="6">
+              <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="font:600 16px 'Space Grotesk';color:#f2edf6;">{{ t.n }}</div><span style="font:700 10px 'Space Grotesk';letter-spacing:.06em;text-transform:uppercase;color:{{ ac }};background:{{ acSoft }};padding:3px 9px;border-radius:20px;">{{ t.tag }}</span></div>
+                <div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;"><sc-for list="{{ t.members }}" as="m" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:66px;"><div style="width:54px;height:54px;border-radius:50%;background:{{ m.portrait }};border:2px solid {{ m.color }};box-shadow:0 0 12px {{ m.glow }};"></div><span style="font:600 11px Manrope;color:#ded8e6;text-align:center;line-height:1.15;">{{ m.name }}</span></div></sc-for></div>
+                <div style="font:500 12.5px/1.6 Manrope;color:rgba(236,231,239,.55);">{{ t.desc }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isBestiaire }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Base de données</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Bestiaire</h1></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;">
+            <sc-for list="{{ page.items }}" as="b" hint-placeholder-count="8">
+              <div style="border-radius:14px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);">
+                <div style="aspect-ratio:16/10;background:{{ b.stripe }};"></div>
+                <div style="padding:12px 14px 14px;"><div style="font:600 14px 'Space Grotesk';color:#f3eef6;">{{ b.n }}</div><div style="display:flex;align-items:center;gap:8px;margin-top:7px;"><span style="font:600 10px Manrope;color:{{ b.catColor }};background:{{ b.catBg }};padding:2px 8px;border-radius:20px;">{{ b.cat }}</span><span style="font:500 11px Manrope;color:rgba(236,231,239,.45);">{{ b.region }}</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:11px;"><sc-for list="{{ b.drops }}" as="d" hint-placeholder-count="2"><span style="font:500 10.5px Manrope;color:#c8c0d0;background:rgba(255,255,255,.05);padding:2px 8px;border-radius:8px;">{{ d }}</span></sc-for></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSucces }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:20px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Progression</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Succès</h1></div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px 22px;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;">
+            <div><div style="font:700 28px 'Space Grotesk';color:#f6f1f9;">{{ page.done }} <span style="color:rgba(236,231,239,.4);font-size:20px;">/ {{ page.all }}</span></div><div style="font:500 12px Manrope;color:rgba(236,231,239,.5);margin-top:2px;">Hauts faits obtenus</div></div>
+            <div style="font:500 12.5px Manrope;color:rgba(236,231,239,.5);max-width:280px;text-align:right;">Chaque succès rapporte des primo-gemmes — de quoi financer tes prochains vœux.</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:18px;">
+            <sc-for list="{{ page.cats }}" as="c" hint-placeholder-count="6"><div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px 18px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;"><span style="font:600 13.5px Manrope;color:#ece7ef;">{{ c.n }}</span><span style="font:700 13px 'Space Grotesk';color:{{ ac }};">{{ c.pct }}</span></div><div style="height:6px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:{{ c.pct }};background:linear-gradient(90deg, {{ ac }}, {{ acLine }});border-radius:4px;"></div></div><div style="font:500 11.5px Manrope;color:rgba(236,231,239,.45);">{{ c.done }} / {{ c.total }} succès</div></div></sc-for>
+          </div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+            <div style="margin:0 0 8px;font:600 12px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:{{ ac }};">Sélection</div>
+            <sc-for list="{{ page.list }}" as="a" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);"><span style="width:12px;height:12px;border-radius:50%;flex:none;background:{{ a.pipBg }};border:2px solid {{ a.pipBorder }};"></span><div style="flex:1;"><div style="font:600 13px Manrope;color:#e9e3f0;">{{ a.n }}</div><div style="font:500 12px Manrope;color:rgba(236,231,239,.45);margin-top:1px;">{{ a.desc }}</div></div><span style="font:600 12px 'Space Grotesk';color:#f0c25a;white-space:nowrap;">◆ {{ a.primos }}</span></div></sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isExploration }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Progression</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Exploration</h1></div>
+          <sc-for list="{{ page.regions }}" as="r" hint-placeholder-count="6">
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px 22px;backdrop-filter:blur(6px);margin-bottom:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div><div style="font:600 18px 'Space Grotesk';color:#f2edf6;">{{ r.n }}</div><div style="font:500 12px Manrope;color:rgba(236,231,239,.5);margin-top:3px;">Oculus : {{ r.have }} / {{ r.total }} · {{ r.ocul }} &nbsp;·&nbsp; Coffres : {{ r.chests }}</div></div><div style="font:700 26px 'Space Grotesk';color:{{ ac }};">{{ r.pctLabel }}</div></div>
+              <div style="height:8px;border-radius:5px;background:rgba(255,255,255,.06);overflow:hidden;"><div style="height:100%;width:{{ r.pct }}%;background:linear-gradient(90deg, {{ ac }}, #8a7fd6);border-radius:5px;"></div></div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCarte }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:20px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Outils</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Carte interactive</h1></div>
+          <div style="display:grid;grid-template-columns:264px 1fr;gap:18px;">
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px 20px;backdrop-filter:blur(6px);">
+              <div style="font:600 10px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:rgba(236,231,239,.4);margin-bottom:10px;">Région</div>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px;"><sc-for list="{{ page.regions }}" as="r" hint-placeholder-count="6"><button onClick="{{ r.onClick }}" style="border:1px solid {{ r.border }};background:{{ r.bg }};color:{{ r.fg }};cursor:pointer;padding:6px 11px;border-radius:16px;font:600 11.5px Manrope;">{{ r.label }}</button></sc-for></div>
+              <div style="font:600 10px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:rgba(236,231,239,.4);margin-bottom:10px;">Filtres</div>
+              <div style="display:flex;flex-direction:column;gap:8px;"><sc-for list="{{ page.cats }}" as="c" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);"><span style="width:10px;height:10px;border-radius:50%;background:{{ c.c }};box-shadow:0 0 7px {{ c.c }};flex:none;"></span><span style="flex:1;font:500 12.5px Manrope;color:#ded8e6;">{{ c.l }}</span><span style="font:600 12px 'Space Grotesk';color:rgba(236,231,239,.5);">{{ c.count }}</span></div></sc-for></div>
+            </div>
+            <div style="position:relative;min-height:540px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:radial-gradient(circle at 50% 40%, rgba(224,90,114,.12), transparent 58%), repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 13px, rgba(255,255,255,0) 13px 26px), linear-gradient(180deg,#14101d,#0b0813);">
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;"><div style="font:600 20px 'Space Grotesk';color:#f2edf6;">Carte de Teyvat — {{ page.activeRegion }}</div><div style="font:500 12px ui-monospace,monospace;color:rgba(236,231,239,.4);max-width:340px;">déposez une tuile de carte ici ou connectez les données de localisation</div></div>
+              <div style="position:absolute;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;"><button style="width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(18,12,24,.8);color:#e6e0ee;cursor:pointer;font:600 18px 'Space Grotesk';">+</button><button style="width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(18,12,24,.8);color:#e6e0ee;cursor:pointer;font:600 18px 'Space Grotesk';">−</button></div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDonnees }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Système</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Données &amp; CGUs</h1></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:18px;">
+            <sc-for list="{{ page.sources }}" as="s" hint-placeholder-count="4"><div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px 20px;"><div style="font:600 14px 'Space Grotesk';color:#f2edf6;">{{ s.n }}</div><div style="font:500 12.5px/1.6 Manrope;color:rgba(236,231,239,.5);margin-top:6px;">{{ s.desc }}</div></div></sc-for>
+          </div>
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;font:500 12.5px/1.7 Manrope;color:rgba(236,231,239,.55);">GenSheet est un outil communautaire non officiel. Genshin Impact et l'ensemble des noms, personnages et éléments associés sont la propriété de leurs détenteurs respectifs. Aucune donnée de compte n'est partagée sans ton consentement.</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isReglages }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="margin-bottom:22px;"><div style="font:600 11px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Système</div><h1 style="font:700 30px 'Space Grotesk';margin:4px 0 0;color:#f4eff8;">Réglages</h1></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;">
+              <div style="margin:0 0 14px;font:600 12px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:{{ ac }};">Général</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);"><span style="font:500 13px Manrope;color:#ded8e6;">Langue</span><span style="font:600 12.5px Manrope;color:#ece7ef;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:9px;">Français ▾</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;gap:12px;"><span style="font:500 13px Manrope;color:#ded8e6;flex:none;">Dossier du jeu</span><span style="font:500 11.5px ui-monospace,monospace;color:rgba(236,231,239,.5);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">…/Genshin Impact game</span></div>
+            </div>
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;">
+              <div style="margin:0 0 14px;font:600 12px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:{{ ac }};">Compte</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);"><span style="font:500 13px Manrope;color:#ded8e6;">UID connecté</span><span style="font:600 12.5px 'Space Grotesk';color:#ece7ef;">788992384</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;"><span style="font:500 13px Manrope;color:#ded8e6;">Session</span><button style="border:1px solid {{ acLine }};background:{{ acSoft }};color:{{ ac }};cursor:pointer;padding:6px 13px;border-radius:9px;font:600 12px Manrope;">Se déconnecter</button></div>
+            </div>
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;">
+              <div style="margin:0 0 14px;font:600 12px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:{{ ac }};">Apparence</div>
+              <div style="font:500 12.5px/1.6 Manrope;color:rgba(236,231,239,.55);">L'accent, l'intensité de la nébuleuse et la densité se règlent en direct dans le panneau <strong style="color:#ece7ef;">Tweaks</strong> de l'éditeur.</div>
+            </div>
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;">
+              <div style="margin:0 0 14px;font:600 12px 'Space Grotesk';letter-spacing:.14em;text-transform:uppercase;color:{{ ac }};">Données</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);"><span style="font:500 13px Manrope;color:#ded8e6;">Synchronisation auto</span><span style="width:40px;height:22px;border-radius:20px;background:{{ ac }};position:relative;flex:none;"><span style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:#fff;"></span></span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;"><span style="font:500 13px Manrope;color:#ded8e6;">Cache local</span><button style="border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#e7e1ee;cursor:pointer;padding:6px 13px;border-radius:9px;font:600 12px Manrope;">Effacer</button></div>
+            </div>
+          </div>
+          <div style="margin-top:18px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;"><div style="font:500 12.5px Manrope;color:rgba(236,231,239,.5);">GenSheet · version 0.1.0 · construit avec Rust</div><a href="#" style="font:600 12.5px Manrope;">Dépôt GitHub →</a></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showRoadmap }}">
+        <div style="animation:gsUp .4s ease both;">
+          <div style="font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};margin-bottom:10px;">Feuille de route · design</div>
+          <h1 style="margin:0 0 8px;font:700 32px 'Space Grotesk';color:#f4eff8;">Ce qu'il reste à concevoir</h1>
+          <p style="margin:0;max-width:580px;font:500 14px/1.7 Manrope;color:rgba(236,231,239,.55);">Suivi des écrans encore à designer. Le thème, la page Personnages et la fiche détaillée sont posés — le reste attend son tour.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:26px;">
+            <sc-for list="{{ roadmap }}" as="g" hint-placeholder-count="4">
+              <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                  <div style="font:600 15px 'Space Grotesk';color:#f2edf6;">{{ g.title }}</div>
+                  <div style="font:600 11px Manrope;color:rgba(236,231,239,.4);background:rgba(255,255,255,.04);padding:3px 9px;border-radius:20px;">{{ g.count }}</div>
+                </div>
+                <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                    <span style="width:10px;height:10px;border-radius:50%;margin-top:4px;flex:none;background:{{ it.pipBg }};border:2px solid {{ it.pipBorder }};box-shadow:0 0 8px {{ it.pipGlow }};"></span>
+                    <div style="flex:1;">
+                      <div style="font:600 13.5px Manrope;color:#e9e3f0;">{{ it.label }}</div>
+                      <div style="font:500 12px Manrope;color:rgba(236,231,239,.45);margin-top:1px;">{{ it.note }}</div>
+                    </div>
+                    <span style="font:600 10px 'Space Grotesk';letter-spacing:.06em;text-transform:uppercase;color:{{ it.statusColor }};white-space:nowrap;margin-top:2px;">{{ it.statusLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showSheet }}">
+        <div style="animation:gsUp .4s ease both;">
+          <button onClick="{{ back }}" style="display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#d9d3e2;cursor:pointer;padding:8px 14px;border-radius:10px;font:600 13px Manrope;margin-bottom:18px;transition:all .15s;" style-hover="background:rgba(255,255,255,.07);color:#fff;">← Personnages</button>
+
+          <div style="position:relative;overflow:hidden;border-radius:22px;border:1px solid {{ sheet.heroBorder }};background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));padding:26px;display:grid;grid-template-columns:300px 1fr;gap:28px;">
+            <div style="position:absolute;inset:0;background:radial-gradient(90% 120% at 84% 0%, {{ sheet.heroGlow }}, transparent 58%);pointer-events:none;"></div>
+            <div style="position:relative;aspect-ratio:3/4;border-radius:16px;background:{{ sheet.portrait }};border:1px solid {{ sheet.heroBorder }};box-shadow:0 0 60px {{ sheet.heroGlow }};overflow:hidden;">
+              <div style="position:absolute;top:12px;left:12px;width:34px;height:34px;border-radius:50%;background:{{ sheet.elColor }};box-shadow:0 0 0 4px rgba(8,6,13,.55),0 0 16px {{ sheet.elColor }};"></div>
+              <div style="position:absolute;left:0;right:0;bottom:0;text-align:center;padding:18px 8px 10px;font:500 10px ui-monospace,monospace;color:rgba(255,255,255,.48);letter-spacing:.06em;background:linear-gradient(180deg,transparent,rgba(8,6,13,.5));">{{ sheet.artLabel }}</div>
+            </div>
+            <div style="position:relative;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+                <span style="font:700 12px 'Space Grotesk';color:#120a0e;background:{{ sheet.rarColor }};padding:4px 10px;border-radius:20px;">{{ sheet.rarLabel }}</span>
+                <span style="display:inline-flex;align-items:center;gap:7px;font:600 12.5px Manrope;color:#ece7ef;background:{{ sheet.elChipBg }};border:1px solid {{ sheet.heroBorder }};padding:4px 11px;border-radius:20px;"><span style="width:9px;height:9px;border-radius:50%;background:{{ sheet.elColor }};box-shadow:0 0 7px {{ sheet.elColor }};"></span>{{ sheet.elLabel }}</span>
+                <span style="font:600 12.5px Manrope;color:#cfc7da;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);padding:4px 11px;border-radius:20px;">{{ sheet.weaponLabel }}</span>
+              </div>
+              <h1 style="margin:0;font:700 42px/1 'Space Grotesk';color:#f6f1f9;">{{ sheet.name }}</h1>
+              <div style="margin:10px 0 20px;font:500 15px Manrope;color:rgba(236,231,239,.6);font-style:italic;">{{ sheet.title }}</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;">
+                <sc-for list="{{ sheet.facts }}" as="f" hint-placeholder-count="8">
+                  <div style="background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:9px 12px;">
+                    <div style="font:600 9.5px Manrope;letter-spacing:.12em;text-transform:uppercase;color:rgba(236,231,239,.4);margin-bottom:3px;">{{ f.k }}</div>
+                    <div style="font:600 13px Manrope;color:#ece7ef;">{{ f.v }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin:14px 0 22px;display:inline-flex;align-items:center;gap:8px;font:500 12px Manrope;color:rgba(240,194,90,.92);background:rgba(240,194,90,.08);border:1px solid rgba(240,194,90,.22);padding:6px 12px;border-radius:20px;">◆ Aperçu de mise en page — données illustratives à compléter</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+              <div style="margin:0 0 14px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Stats ciblées</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
+                <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center;">
+                  <div style="font:600 9.5px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:6px;">Sablier</div>
+                  <div style="font:600 13px Manrope;color:{{ sheet.elColor }};">{{ sheet.stats.sablier }}</div>
+                </div>
+                <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center;">
+                  <div style="font:600 9.5px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:6px;">Coupe</div>
+                  <div style="font:600 13px Manrope;color:{{ sheet.elColor }};">{{ sheet.stats.coupe }}</div>
+                </div>
+                <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center;">
+                  <div style="font:600 9.5px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:6px;">Diadème</div>
+                  <div style="font:600 13px Manrope;color:{{ sheet.elColor }};">{{ sheet.stats.diademe }}</div>
+                </div>
+              </div>
+              <div style="font:600 10px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:10px;">Sous-stats prioritaires</div>
+              <sc-for list="{{ sheet.stats.subs }}" as="s" hint-placeholder-count="4">
+                <div style="margin-bottom:10px;">
+                  <div style="font:600 12.5px Manrope;color:#ded8e6;margin-bottom:5px;">{{ s.label }}</div>
+                  <div style="height:6px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;"><div style="height:100%;width:{{ s.pct }};background:linear-gradient(90deg, {{ ac }}, {{ sheet.elColor }});border-radius:4px;"></div></div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+              <div style="margin:0 0 8px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Sets d'artéfacts</div>
+              <sc-for list="{{ sheet.sets }}" as="st" hint-placeholder-count="3">
+                <div style="display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                  <div style="width:44px;height:44px;border-radius:11px;background:{{ st.stripe }};border:1px solid rgba(255,255,255,.08);flex:none;"></div>
+                  <div>
+                    <div style="font:600 13.5px Manrope;color:#ece7ef;">{{ st.name }}</div>
+                    <div style="font:500 12px Manrope;color:rgba(236,231,239,.5);margin-top:2px;">{{ st.effect }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);margin-bottom:18px;">
+            <div style="margin:0 0 14px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Ranking / Tier</div>
+            <div style="display:flex;gap:8px;margin-bottom:14px;">
+              <sc-for list="{{ sheet.tierScale }}" as="t" hint-placeholder-count="6">
+                <div style="flex:1;text-align:center;padding:14px 0 10px;border-radius:12px;font:700 22px 'Space Grotesk';color:{{ t.fg }};background:{{ t.bg }};border:1px solid {{ t.border }};box-shadow:{{ t.glow }};">
+                  {{ t.label }}
+                  <div style="font:600 9px Manrope;letter-spacing:.1em;text-transform:uppercase;margin-top:2px;">{{ t.marker }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font:500 13px/1.6 Manrope;color:rgba(236,231,239,.6);margin-bottom:16px;">{{ sheet.tierCaption }}</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <sc-for list="{{ sheet.tierRoles }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px;background:rgba(255,255,255,.03);">
+                  <span style="font:500 13px Manrope;color:#ded8e6;">{{ r.role }}</span>
+                  <span style="font:700 12px 'Space Grotesk';color:{{ r.color }};background:{{ r.bg }};border:1px solid {{ r.border }};padding:3px 12px;border-radius:20px;">{{ r.tier }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);margin-bottom:18px;">
+            <div style="margin:0 0 14px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Builds possibles</div>
+            <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+              <sc-for list="{{ sheet.builds }}" as="b" hint-placeholder-count="3">
+                <button onClick="{{ b.onClick }}" style="border:1px solid {{ b.border }};background:{{ b.bg }};color:{{ b.fg }};cursor:pointer;padding:9px 15px;border-radius:11px;font:600 13px Manrope;transition:all .15s;">{{ b.name }} · {{ b.tag }}</button>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:22px;">
+              <div>
+                <div style="font:600 10px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:9px;">Armes recommandées</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+                  <sc-for list="{{ sheet.buildDetail.weapons }}" as="w" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+                      <span style="font:600 13px Manrope;color:#e6e0ee;">{{ w.name }}</span>
+                      <span style="font:700 10.5px 'Space Grotesk';color:#120a0e;background:#f0c25a;padding:2px 8px;border-radius:20px;">{{ w.note }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font:600 10px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:9px;">Set d'artéfacts</div>
+                <div style="padding:10px 13px;border-radius:10px;background:{{ acSoft }};border:1px solid {{ acLine }};font:600 13px Manrope;color:#f2edf6;">{{ sheet.buildDetail.set }}</div>
+              </div>
+              <div>
+                <div style="font:600 10px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:9px;">Stats principales</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+                  <div style="display:flex;justify-content:space-between;padding:9px 13px;border-radius:10px;background:rgba(255,255,255,.03);"><span style="font:500 12.5px Manrope;color:rgba(236,231,239,.55);">Sablier</span><span style="font:600 12.5px Manrope;color:#ece7ef;">{{ sheet.buildDetail.sablier }}</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:9px 13px;border-radius:10px;background:rgba(255,255,255,.03);"><span style="font:500 12.5px Manrope;color:rgba(236,231,239,.55);">Coupe</span><span style="font:600 12.5px Manrope;color:#ece7ef;">{{ sheet.buildDetail.coupe }}</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:9px 13px;border-radius:10px;background:rgba(255,255,255,.03);"><span style="font:500 12.5px Manrope;color:rgba(236,231,239,.55);">Diadème</span><span style="font:600 12.5px Manrope;color:#ece7ef;">{{ sheet.buildDetail.diademe }}</span></div>
+                </div>
+                <div style="font:600 10px Manrope;letter-spacing:.1em;text-transform:uppercase;color:rgba(236,231,239,.42);margin-bottom:9px;">Priorité talents</div>
+                <div style="padding:10px 13px;border-radius:10px;background:rgba(255,255,255,.03);font:500 12.5px/1.5 Manrope;color:#ded8e6;">{{ sheet.buildDetail.priority }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;">
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+              <div style="margin:0 0 8px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Talents</div>
+              <sc-for list="{{ sheet.talents }}" as="t" hint-placeholder-count="3">
+                <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                  <div style="width:38px;height:38px;border-radius:10px;background:{{ sheet.elChipBg }};border:1px solid rgba(255,255,255,.08);flex:none;display:grid;place-items:center;font:700 12px 'Space Grotesk';color:{{ sheet.elColor }};">{{ t.badge }}</div>
+                  <div style="flex:1;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><span style="font:600 13px Manrope;color:#ece7ef;">{{ t.type }}</span><span style="font:600 10px 'Space Grotesk';color:{{ ac }};white-space:nowrap;">{{ t.prioLabel }}</span></div>
+                    <div style="font:500 12px Manrope;color:rgba(236,231,239,.5);margin-top:3px;">{{ t.desc }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+              <div style="margin:0 0 8px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Constellations</div>
+              <sc-for list="{{ sheet.consts }}" as="c" hint-placeholder-count="6">
+                <div style="display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                  <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid {{ c.ring }};flex:none;display:grid;place-items:center;font:700 12px 'Space Grotesk';color:{{ c.numColor }};">{{ c.n }}</div>
+                  <div style="flex:1;">
+                    <div style="font:600 12.5px Manrope;color:#e6e0ee;">{{ c.name }}</div>
+                    <div style="font:500 11.5px Manrope;color:rgba(236,231,239,.45);margin-top:1px;">{{ c.desc }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);margin-bottom:18px;">
+            <div style="margin:0 0 8px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Meilleures équipes</div>
+            <sc-for list="{{ sheet.teams }}" as="tm" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:18px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.05);flex-wrap:wrap;">
+                <div style="min-width:150px;">
+                  <div style="font:600 14px 'Space Grotesk';color:#f2edf6;">{{ tm.name }}</div>
+                  <div style="font:600 11px Manrope;color:{{ ac }};margin-top:3px;letter-spacing:.04em;text-transform:uppercase;">{{ tm.tag }}</div>
+                </div>
+                <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                  <sc-for list="{{ tm.members }}" as="m" hint-placeholder-count="4">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:66px;">
+                      <div style="width:52px;height:52px;border-radius:50%;background:{{ m.portrait }};border:2px solid {{ m.color }};box-shadow:0 0 12px {{ m.glow }};"></div>
+                      <span style="font:600 11px Manrope;color:#ded8e6;text-align:center;line-height:1.15;">{{ m.name }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px;backdrop-filter:blur(6px);">
+            <div style="margin:0 0 14px;font:600 12px 'Space Grotesk';letter-spacing:.16em;text-transform:uppercase;color:{{ ac }};">Ascension &amp; matériaux</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;">
+              <sc-for list="{{ sheet.materials }}" as="mt" hint-placeholder-count="6">
+                <div style="text-align:center;">
+                  <div style="aspect-ratio:1;border-radius:14px;background:{{ mt.stripe }};border:1px solid rgba(255,255,255,.08);display:flex;align-items:flex-end;justify-content:flex-end;padding:8px;">
+                    <span style="font:600 11px 'Space Grotesk';color:#f2edf6;background:rgba(8,6,13,.6);padding:2px 7px;border-radius:8px;">{{ mt.qty }}</span>
+                  </div>
+                  <div style="font:600 12.5px Manrope;color:#e6e0ee;margin-top:9px;">{{ mt.label }}</div>
+                  <div style="font:500 11px Manrope;color:rgba(236,231,239,.45);margin-top:2px;">{{ mt.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#e05a72&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#e05a72&quot;,&quot;#d65b9a&quot;,&quot;#bb8fe4&quot;,&quot;#eeb64f&quot;],&quot;section&quot;:&quot;Thème&quot;},&quot;nebula&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:100,&quot;min&quot;:0,&quot;max&quot;:150,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Thème&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Équilibré&quot;,&quot;options&quot;:[&quot;Aéré&quot;,&quot;Équilibré&quot;,&quot;Compact&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Mise en page&quot;}}">
+class Component extends DCLogic {
+  state = { tab:'personnages', scope:'all', selected:null, els:[], wps:[], rars:[], q:'', buildIdx:0, help:false, armType:[], armRar:[], armQ:'', tierEl:'all', codeStates:{}, mapRegion:'Mondstadt' };
+
+  EL = {
+    anemo:{label:'Anémo',c:'#6fc9b3'}, cryo:{label:'Cryo',c:'#7fd3e8'}, dendro:{label:'Dendro',c:'#a9c94f'},
+    electro:{label:'Electro',c:'#bb8fe4'}, geo:{label:'Géo',c:'#eeb64f'}, hydro:{label:'Hydro',c:'#4fb6f2'}, pyro:{label:'Pyro',c:'#f07a54'}
+  };
+  WP = {
+    sword:{label:'Épée à une main',short:'Épée'}, claymore:{label:'Épée à deux mains',short:'Claymore'},
+    polearm:{label:"Arme d'hast",short:'Lance'}, bow:{label:'Arc',short:'Arc'}, catalyst:{label:'Catalyseur',short:'Catalyseur'}
+  };
+
+  ROSTER = [
+    {n:'Albedo',e:'geo',w:'sword',r:5,region:'Mondstadt'}, {n:'Alhaitham',e:'dendro',w:'sword',r:5,region:'Sumeru'},
+    {n:'Aloy',e:'cryo',w:'bow',r:5}, {n:'Amber',e:'pyro',w:'bow',r:4,role:'support',region:'Mondstadt'},
+    {n:'Arataki Itto',e:'geo',w:'claymore',r:5,region:'Inazuma'}, {n:'Arlecchino',e:'pyro',w:'polearm',r:5,tier:'S',region:'Fontaine'},
+    {n:'Baizhu',e:'dendro',w:'catalyst',r:5,role:'healer',region:'Liyue'}, {n:'Barbara',e:'hydro',w:'catalyst',r:4,role:'healer',region:'Mondstadt'},
+    {n:'Beidou',e:'electro',w:'claymore',r:4,region:'Liyue'}, {n:'Bennett',e:'pyro',w:'sword',r:4,role:'support',tier:'S',region:'Mondstadt',bday:'29 février',title:'Aventurier au grand cœur'},
+    {n:'Candace',e:'hydro',w:'polearm',r:4,region:'Sumeru'}, {n:'Charlotte',e:'cryo',w:'catalyst',r:4,region:'Fontaine'},
+    {n:'Chasca',e:'anemo',w:'bow',r:5,region:'Natlan'}, {n:'Chevreuse',e:'pyro',w:'polearm',r:4,role:'support',region:'Fontaine'},
+    {n:'Chiori',e:'geo',w:'sword',r:5,region:'Fontaine'}, {n:'Chongyun',e:'cryo',w:'claymore',r:4,region:'Liyue'},
+    {n:'Citlali',e:'cryo',w:'catalyst',r:5,role:'support',region:'Natlan'}, {n:'Clorinde',e:'electro',w:'sword',r:5,region:'Fontaine'},
+    {n:'Collei',e:'dendro',w:'bow',r:4,region:'Sumeru'}, {n:'Cyno',e:'electro',w:'polearm',r:5,region:'Sumeru'},
+    {n:'Dehya',e:'pyro',w:'claymore',r:5,region:'Sumeru'}, {n:'Diluc',e:'pyro',w:'claymore',r:5,region:'Mondstadt'},
+    {n:'Diona',e:'cryo',w:'bow',r:4,role:'healer',region:'Mondstadt'}, {n:'Eula',e:'cryo',w:'claymore',r:5,region:'Mondstadt'},
+    {n:'Fischl',e:'electro',w:'bow',r:4,role:'support',region:'Mondstadt'}, {n:'Furina',e:'hydro',w:'sword',r:5,role:'support',tier:'S',region:'Fontaine',bday:'13 octobre',title:'Ancienne Archon de l\'Hydro'},
+    {n:'Ganyu',e:'cryo',w:'bow',r:5,region:'Liyue'}, {n:'Hu Tao',e:'pyro',w:'polearm',r:5,tier:'S',region:'Liyue',bday:'1 novembre',vaJp:'Rie Takahashi',title:'Directrice des pompes funèbres Wangsheng',stats:{sablier:'PV%',coupe:'Pyro DGT',diademe:'DGT / Taux Crit',subs:[['DGT & Taux Crit',5],['PV%',4],['Maîtrise élémentaire',3],["Recharge d'énergie",2]]}},
+    {n:'Jean',e:'anemo',w:'sword',r:5,role:'healer',region:'Mondstadt'}, {n:'Kaeya',e:'cryo',w:'sword',r:4,region:'Mondstadt'},
+    {n:'Kazuha',e:'anemo',w:'sword',r:5,role:'support',tier:'S',region:'Inazuma',title:'Épéiste vagabond'}, {n:'Keqing',e:'electro',w:'sword',r:5,tier:'A',region:'Liyue',title:'Secrétaire des Qixing'},
+    {n:'Klee',e:'pyro',w:'catalyst',r:5,region:'Mondstadt'}, {n:'Kokomi',e:'hydro',w:'catalyst',r:5,role:'healer',region:'Inazuma'},
+    {n:'Lisa',e:'electro',w:'catalyst',r:4,region:'Mondstadt'}, {n:'Mona',e:'hydro',w:'catalyst',r:5,role:'support',region:'Mondstadt'},
+    {n:'Nahida',e:'dendro',w:'catalyst',r:5,role:'support',tier:'S',region:'Sumeru',bday:'27 octobre',title:'Archon du Dendro'}, {n:'Navia',e:'geo',w:'claymore',r:5,region:'Fontaine'},
+    {n:'Neuvillette',e:'hydro',w:'catalyst',r:5,tier:'S',region:'Fontaine',title:'Juge suprême de Fontaine'}, {n:'Ningguang',e:'geo',w:'catalyst',r:4,region:'Liyue'},
+    {n:'Noelle',e:'geo',w:'claymore',r:4,region:'Mondstadt'}, {n:'Raiden Shogun',e:'electro',w:'polearm',r:5,role:'support',tier:'S',region:'Inazuma',bday:'26 juin',title:'Archon de l\'Electro'},
+    {n:'Sucrose',e:'anemo',w:'catalyst',r:4,role:'support',region:'Mondstadt'}, {n:'Tighnari',e:'dendro',w:'bow',r:5,region:'Sumeru'},
+    {n:'Venti',e:'anemo',w:'bow',r:5,role:'support',region:'Mondstadt'}, {n:'Wriothesley',e:'cryo',w:'catalyst',r:5,region:'Fontaine'},
+    {n:'Xiangling',e:'pyro',w:'polearm',r:4,role:'support',region:'Liyue'}, {n:'Xiao',e:'anemo',w:'polearm',r:5,region:'Liyue'},
+    {n:'Xingqiu',e:'hydro',w:'sword',r:4,role:'support',tier:'S',region:'Liyue',title:'Fils de la maison Feiyun'}, {n:'Yae Miko',e:'electro',w:'catalyst',r:5,region:'Inazuma'},
+    {n:'Yelan',e:'hydro',w:'bow',r:5,role:'support',region:'Liyue'}, {n:'Zhongli',e:'geo',w:'polearm',r:5,role:'support',tier:'A',region:'Liyue',title:'Consultant de la Maison Wangsheng'}
+  ];
+
+  OWNED = { Keqing:{level:20,const:0}, Amber:{level:20,const:0}, Xingqiu:{level:20,const:0}, Noelle:{level:20,const:0}, Kaeya:{level:20,const:0}, Lisa:{level:3,const:0}, Xiangling:{level:1,const:0}, Ningguang:{level:1,const:0}, Bennett:{level:40,const:1}, Barbara:{level:20,const:0} };
+
+  NAV = [
+    {t:"Vue d'ensemble", items:[['dashboard','Tableau de bord'],['calendrier','Calendrier'],['codes','Codes']]},
+    {t:'Base de données', items:[['personnages','Personnages'],['armes','Armes'],['artefacts','Artéfacts'],['bestiaire','Bestiaire']]},
+    {t:'Méta & guides', items:[['tierlists','Tier lists'],['equipes','Équipes']]},
+    {t:'Progression', items:[['exploration','Exploration'],['succes','Succès']]},
+    {t:'Outils', items:[['carte','Carte interactive']]}
+  ];
+
+  TABMETA = {
+    dashboard:{title:'Tableau de bord', desc:"Synchronisation des vœux, profil du compte, statistiques et historique des tirages."},
+    calendrier:{title:'Calendrier', desc:"Bannières, farm du jour par domaine, anniversaires et événements sur une grille hebdomadaire."},
+    codes:{title:'Codes', desc:"Codes de rédemption connus, récompenses et suivi de ton statut d'échange."},
+    armes:{title:'Armes', desc:"Base de données des armes : statistiques, raffinements, courbes et personnages recommandés."},
+    artefacts:{title:'Artéfacts', desc:"Sets d'artéfacts, effets 2 / 4 pièces, pièces farmables et domaines associés."},
+    bestiaire:{title:'Bestiaire', desc:"Monstres, boss et élites : butins, résistances élémentaires et localisations."},
+    tierlists:{title:'Tier lists', desc:"Classements S → F par rôle, élément et contexte (mono-élément, réaction, Abysse)."},
+    equipes:{title:'Équipes', desc:"Meilleures compositions par personnage : rôles, réactions et rotations."},
+    exploration:{title:'Exploration', desc:"Progression par région : oculus, coffres, statues des Sept et objectifs de complétion."},
+    succes:{title:'Succès', desc:"Hauts faits par catégorie, primo-gemmes restantes et guides d'obtention."},
+    carte:{title:'Carte interactive', desc:"Carte de Teyvat : ressources, coffres, points de téléportation et filtres."},
+    donnees:{title:'Données & CGUs', desc:"Sources des données, licences, mentions légales et conditions d'utilisation."},
+    reglages:{title:'Réglages', desc:"Langue, dossier du jeu, compte, thème et préférences d'affichage."}
+  };
+
+  ROADMAP = [
+    {title:'Fait', items:[
+      {label:'Thème & shell immersif', note:'Nébuleuse, sidebar, navigation', status:'done'},
+      {label:'Personnages — grille', note:'Onglets, filtres, cartes', status:'done'},
+      {label:'Fiche personnage', note:'En-tête + toutes les sections', status:'done'}
+    ]},
+    {title:'À concevoir — prioritaire', items:[
+      {label:'Tableau de bord', note:'Sync vœux, profil, stats, historique', status:'todo'},
+      {label:'Calendrier', note:'Grille hebdomadaire, farm, anniversaires', status:'todo'},
+      {label:'Armes', note:'Grille + fiches détaillées', status:'todo'},
+      {label:'Artéfacts', note:'Sets, effets, domaines', status:'todo'}
+    ]},
+    {title:'À concevoir — ensuite', items:[
+      {label:'Tier lists', note:'S → F par rôle et contexte', status:'todo'},
+      {label:'Équipes', note:'Meilleures compositions', status:'todo'},
+      {label:'Bestiaire', note:'Monstres, boss, butins', status:'todo'},
+      {label:'Succès', note:'Hauts faits, primo-gemmes', status:'todo'},
+      {label:'Exploration', note:'Régions, oculus, coffres', status:'todo'},
+      {label:'Carte interactive', note:'Ressources, filtres', status:'todo'},
+      {label:'Codes', note:'Rédemption & suivi', status:'todo'}
+    ]},
+    {title:'Transverse', items:[
+      {label:'Onboarding & sync', note:'Détection du jeu, connexion profil', status:'todo'},
+      {label:'Réglages / Données & CGUs', note:'Préférences, licences', status:'todo'},
+      {label:'États', note:'Vide / chargement / erreur', status:'todo'},
+      {label:'Composants réutilisables', note:'Cartes, chips, tuiles', status:'wip'}
+    ]}
+  ];
+
+  WEAPONS = [
+    {n:'Aquila Favonia',t:'sword',r:5,sub:'DGT Phys.',atk:674},{n:'Lumière foliaire du soleil',t:'sword',r:5,sub:'Taux Crit',atk:542},
+    {n:'Épée du festin',t:'sword',r:4,sub:"Recharge d'énergie",atk:565},{n:'Épée noire',t:'sword',r:4,sub:'Taux Crit',atk:510},{n:'Cristallfleur',t:'sword',r:4,sub:'PV%',atk:510},
+    {n:'Bâton de Homa',t:'polearm',r:5,sub:'DGT Crit',atk:608},{n:'Lance funéraire',t:'polearm',r:5,sub:'Taux Crit',atk:565},
+    {n:'Le prix (The Catch)',t:'polearm',r:4,sub:"Recharge d'énergie",atk:510},{n:'Croc-de-dragon',t:'polearm',r:4,sub:'ATQ%',atk:565},
+    {n:'Pierre tombale du loup',t:'claymore',r:5,sub:'ATQ%',atk:608},{n:'Bâton de rédemption',t:'claymore',r:4,sub:'ATQ%',atk:510},{n:'Serpent de pierre',t:'claymore',r:4,sub:'PV%',atk:510},
+    {n:"Arc d'Amos",t:'bow',r:5,sub:'ATQ%',atk:608},{n:'Simulacre aquatique',t:'bow',r:5,sub:'DGT Crit',atk:542},{n:'Sans-corde',t:'bow',r:4,sub:'Maîtrise élém.',atk:510},{n:'Arc de chasse',t:'bow',r:3,sub:'ATQ%',atk:354},
+    {n:'Prière perdue au sanctuaire',t:'catalyst',r:5,sub:'Taux Crit',atk:542},{n:'Mille rêves flottants',t:'catalyst',r:5,sub:'Maîtrise élém.',atk:542},{n:'Le Widsith',t:'catalyst',r:4,sub:'DGT Crit',atk:510},{n:'Recueil Mappa Mare',t:'catalyst',r:4,sub:'Maîtrise élém.',atk:565}
+  ];
+  ARTSETS = [
+    {n:'Sorcière écarlate des flammes',el:'pyro',p2:'+15 % de DGT Pyro.',p4:'Après une compétence, +50 % de DGT de Vaporisation et Fonte pendant 10 s.',dom:'Domaine — Vallée oubliée'},
+    {n:'Emblème du destin brisé',el:'electro',p2:"+20 % de recharge d'énergie.",p4:"Le DGT de déchaînement augmente selon la recharge d'énergie (max +75 %).",dom:'Domaine — Palais de Momiji'},
+    {n:'Fureur foudroyante',el:'electro',p2:'+15 % de DGT Électro.',p4:'+DGT des réactions Électro et réduction du temps de recharge de la compétence.',dom:'Domaine — Cité de la Mi-été'},
+    {n:'Errances glaciales',el:'cryo',p2:'+15 % de DGT Cryo.',p4:'+40 % de Taux Crit contre les ennemis Cryo ou gelés.',dom:'Domaine — Île du péril'},
+    {n:'Cœur de la profondeur',el:'hydro',p2:'+15 % de DGT Hydro.',p4:'+30 % de DGT des attaques normales et chargées pendant 15 s après la compétence.',dom:'Domaine — Palais de Momiji'},
+    {n:'Mémoire du bosquet doré',el:'dendro',p2:'+15 % de DGT Dendro.',p4:'+Maîtrise élémentaire selon les réactions Dendro déclenchées.',dom:'Domaine — Forêt d\'Avidya'},
+    {n:"Coquille du magma d'or",el:'geo',p2:'+15 % de DGT Géo.',p4:'Bonus de DGT lié au bouclier et à l\'équipe.',dom:'Domaine — Falaise du crépuscule'},
+    {n:'Sillage de bambou vert',el:'anemo',p2:'+15 % de DGT Anémo.',p4:'Réduit la RES élémentaire des ennemis touchés par un swirl.',dom:'Domaine — Temple englouti'}
+  ];
+  BESTIARY = [
+    {n:'Cube géo Primo',cat:'Boss de monde',region:'Liyue',drops:['Éclat de prisme','Gemme Géo']},
+    {n:'Régisseur anémo',cat:'Boss de monde',region:'Mondstadt',drops:['Cœur de tempête','Gemme Anémo']},
+    {n:'Hypostase électro',cat:'Boss de monde',region:'Inazuma',drops:['Prisme électro','Gemme Électro']},
+    {n:'Andrius — Loup du Nord',cat:'Boss hebdomadaire',region:'Mondstadt',drops:['Molaire de loup','Boréal']},
+    {n:'Dvalin — Stormterror',cat:'Boss hebdomadaire',region:'Mondstadt',drops:['Larme de Dvalin','Souffle']},
+    {n:'La Signora',cat:'Boss hebdomadaire',region:'Inazuma',drops:['Braise ardente','Cendres']},
+    {n:'Mitachurl',cat:'Élite',region:'Partout',drops:['Masque effrité','Nectar']},
+    {n:'Skirmisher Fatui',cat:'Élite',region:'Partout',drops:['Insigne Fatui']},
+    {n:'Automate ruine',cat:'Élite',region:'Partout',drops:['Rouage usé','Noyau chaotique']},
+    {n:'Samachurl',cat:'Élite',region:'Partout',drops:['Rouleau divin','Nectar']},
+    {n:'Hilichurl',cat:'Monstre commun',region:'Partout',drops:['Flèche effritée','Masque']},
+    {n:'Slime',cat:'Monstre commun',region:'Partout',drops:['Condensat élémentaire']}
+  ];
+  ACHVCATS = [
+    {n:'Merveilles du monde',done:42,total:118},{n:"La quête d'un voyageur",done:15,total:62},{n:'Mémoire de Teyvat',done:8,total:40},
+    {n:'Domaines & défis',done:24,total:70},{n:'Le grand voyage',done:31,total:55},{n:'Gastronome',done:12,total:30}
+  ];
+  ACHVLIST = [
+    {n:'Première rencontre',desc:'Terminez le prologue de l\'histoire principale.',primos:10,done:true},
+    {n:'Explorateur chevronné',desc:'Atteignez 100 % d\'exploration dans une région.',primos:20,done:false},
+    {n:'Maître des éléments',desc:'Déclenchez 1 000 réactions élémentaires.',primos:5,done:true},
+    {n:'Collectionneur',desc:'Obtenez 20 personnages différents.',primos:10,done:false},
+    {n:'Abysse conquis',desc:'Terminez l\'étage 12 du Spiral Abyss.',primos:20,done:false}
+  ];
+  REGIONS = [
+    {n:'Mondstadt',pct:16.3,ocul:'Anémocule',have:11,total:66,chests:120},{n:'Liyue',pct:8.1,ocul:'Géocule',have:9,total:131,chests:210},
+    {n:'Inazuma',pct:2.4,ocul:'Électrocule',have:2,total:181,chests:180},{n:'Sumeru',pct:0,ocul:'Dendrocule',have:0,total:271,chests:0},
+    {n:'Fontaine',pct:0,ocul:'Hydrocule',have:0,total:220,chests:0},{n:'Natlan',pct:0,ocul:'Pyrocule',have:0,total:100,chests:0}
+  ];
+  CODES = [
+    {code:'P7G0XA30H0Q3',src:'ennead.cc',date:'2026-07-23',rewards:"Primo-gemme ×60, Expérience d'aventurier ×5",state:'Déjà utilisé'},
+    {code:'UIVI13C8X156',src:'seria.moe',date:'2026-07-23',rewards:'—',state:'Échangé'},
+    {code:'CODENAMEK',src:'ennead.cc',date:'2026-07-23',rewards:'Recette : festin du carnivore ×1, nectar aux neuf fruits ×1, tourte ×1, lettre d\'invitation ×1',state:'Invalide'},
+    {code:'LEGEDILJKSGM',src:'seria.moe',date:'2026-07-23',rewards:"Primo-gemme ×60, Expérience d'aventurier ×5",state:'Déjà utilisé'}
+  ];
+  TEAMS = [
+    {n:'National',tag:'Vaporisation',members:['Xiangling','Xingqiu','Bennett','Kazuha'],desc:'Rotation rapide et dégâts de Vaporisation constants — la référence polyvalente.'},
+    {n:'Hyperbloom',tag:'Dendro / Électro',members:['Nahida','Xingqiu','Yae Miko','Raiden Shogun'],desc:'Réactions Bloom générées puis détonées par l\'Électro.'},
+    {n:'Freeze',tag:'Cryo / Hydro',members:['Ganyu','Furina','Kazuha','Charlotte'],desc:'Contrôle total des ennemis via le gel permanent.'},
+    {n:'Mono Pyro',tag:'Pyro',members:['Arlecchino','Bennett','Kazuha','Zhongli'],desc:'Dégâts Pyro purs, buffs et survie assurés.'},
+    {n:'Aggravation',tag:'Électro / Dendro',members:['Clorinde','Nahida','Fischl','Zhongli'],desc:'Réactions d\'Aggravation déclenchées en continu.'},
+    {n:'Neuvillette Charge',tag:'Hydro',members:['Neuvillette','Furina','Kazuha','Zhongli'],desc:'Attaques chargées Hydro à très haut dégât soutenu.'}
+  ];
+
+  discFor(name){ const mc=this.nameMap()[name]; const c=mc?this.EL[mc.e].c:'#8a8394'; return {name,color:c,portrait:this.portrait(c),glow:this.hexA(c,.45)}; }
+  tierDisplay(c){ if(c.tier) return c.tier; if(c.r===5) return 'A'; return (c.n.charCodeAt(0)%2===0)?'B':'C'; }
+  armesList(){ const s=this.state; return this.WEAPONS.filter(w=>{ if(s.armType.length&&!s.armType.includes(w.t)) return false; if(s.armRar.length&&!s.armRar.includes(w.r)) return false; if(s.armQ&&!w.n.toLowerCase().includes(s.armQ.toLowerCase())) return false; return true; }); }
+
+  buildPage(tab){ const {ac}=this.acColors();
+    if(tab==='dashboard'){ const wr=(name,type,r,date)=>({name,type,rarity:r+'★',rarColor:r===5?'#f0c25a':r===4?'#c79be8':'#7fb2e8',nameColor:type==='Personnage'?'#c79be8':'#e6e0ee',date});
+      return {gamePath:'D:/Hub/Games/HoYoPlay/games/Genshin Impact game', acct:{name:'Soilepha',uid:'788992384',ra:8},
+        stats:[{v:'2',l:"Jours d'activité"},{v:'12',l:'Hauts faits'},{v:'—',l:'Abysse'},{v:'49',l:'Coffres ouverts'},{v:'11',l:'Oculus collectés'},{v:'11 / 3',l:'Points de tp / domaines'}],
+        wishStats:[{v:'32',l:'Vœux au total'},{v:'5 120',l:'Primo-gemmes dépensées'},{v:'0',l:'5★ obtenus'},{v:'6',l:'4★ obtenus'},{v:'12',l:'Pity perso actuel'}],
+        wishes:[wr('Épée de la raison','Arme',3,'2026-07-22 21:08'),wr('Guide de magie','Arme',3,'2026-07-22 21:08'),wr('Xiangling','Personnage',4,'2026-07-22 21:07'),wr('Lance-pierres','Arme',3,'2026-07-22 21:07'),wr('Histoire des chasseurs de dragon','Arme',3,'2026-07-22 21:07'),wr('Xingqiu','Personnage',4,'2026-07-22 21:07'),wr('Ningguang','Personnage',4,'2026-07-22 21:07'),wr("Serment de l'archer",'Arme',3,'2026-07-22 21:07'),wr('Yun Jin','Personnage',4,'2026-07-22 21:07'),wr('Épée céleste','Arme',3,'2026-07-22 21:06')]};
+    }
+    if(tab==='calendrier'){ const ev=(l,kind)=>{ const m={banner:['rgba(224,90,114,.18)','#f0808f'],reset:['rgba(79,182,242,.16)','#7fc4f2'],bday:['rgba(240,194,90,.16)','#f0c25a'],event:['rgba(169,201,79,.16)','#bcd66a']}[kind]; return {l,bg:m[0],fg:m[1]}; };
+      const dn=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],dates=[21,22,23,24,25,26,27];
+      const de=[[ev('Reset hebdomadaire','reset'),ev('Farm : Liberté','event')],[ev('Farm : Résistance','event')],[ev('Farm : Or','event')],[ev('Anniv. personnage','bday'),ev('Farm : Liberté','event')],[ev('Fin de bannière','banner')],[ev('Farm week-end','event')],[ev('Tous les livres','event')]];
+      const days=dn.map((n,i)=>({name:n,date:dates[i],today:i===3,bg:i===3?this.hexA(ac,.14):'rgba(255,255,255,.03)',border:i===3?this.hexA(ac,.5):'rgba(255,255,255,.06)',events:de[i]}));
+      const farm=[{day:'Lundi / Jeudi',books:['Liberté','Prospérité','Transcendance']},{day:'Mardi / Vendredi',books:['Résistance','Diligence','Élégance']},{day:'Mercredi / Samedi',books:['Confiance','Or','Léthargie']},{day:'Dimanche',books:['Tous les livres']}];
+      const birthdays=this.ROSTER.filter(c=>c.bday).slice(0,5).map(c=>({name:c.n,date:c.bday,disc:this.discFor(c.n)}));
+      const events=[{l:'Bannière événement — 5★',when:'se termine dans 8 j'},{l:'Événement web « Défis »',when:'dans 3 j'},{l:'Abysse — nouvelle moitié',when:'dans 5 j'},{l:'Maintenance / mise à jour',when:'dans 12 j'}];
+      return {days,farm,birthdays,events};
+    }
+    if(tab==='codes'){ const opts=['À essayer','Déjà utilisé','Échangé','Invalide'];
+      const noteFor=(st)=>({'À essayer':'Non testé.','Déjà utilisé':'Code déjà utilisé.','Échangé':'Échangé — récompenses envoyées par courrier.','Invalide':'Noté à la main.'}[st]||'');
+      const list=this.CODES.map(c=>{ const st=this.state.codeStates[c.code]||c.state; return {code:c.code,src:c.src,date:c.date,rewards:c.rewards,state:st,note:noteFor(st),onChange:(e)=>{ const v=e.target.value; this.setState(s=>({codeStates:Object.assign({},s.codeStates,{[c.code]:v})})); }}; });
+      return {known:this.CODES.length,toTry:0,list,opts};
+    }
+    if(tab==='armes'){ const chip=(on,col)=>({bg:on?this.hexA(col,.22):'rgba(255,255,255,.04)',border:on?this.hexA(col,.6):'rgba(255,255,255,.09)',fg:on?'#fff':'#c8c0d0'});
+      const typeChips=Object.keys(this.WP).map(id=>{ const on=this.state.armType.includes(id); return Object.assign({label:this.WP[id].short,onClick:()=>this.toggle('armType',id)},chip(on,ac)); });
+      const rarChips=[5,4,3].map(r=>{ const on=this.state.armRar.includes(r); const col=r===5?'#f0c25a':r===4?'#c79be8':'#7fb2e8'; return Object.assign({label:r+'★',onClick:()=>this.toggle('armRar',r)},chip(on,col)); });
+      const list=this.armesList().map(w=>{ const col=w.r===5?'#f0c25a':w.r===4?'#c79be8':'#7fb2e8'; return {n:w.n,typeLabel:this.WP[w.t].label,rar:w.r+'★',rarColor:col,sub:w.sub,atk:w.atk,stripe:this.stripe(col,.16),border:this.hexA(col,.3)}; });
+      return {typeChips,rarChips,list,count:list.length+' arme(s)',q:this.state.armQ,onSearch:(e)=>{ const v=e.target.value; this.setState({armQ:v}); }};
+    }
+    if(tab==='artefacts'){ const sets=this.ARTSETS.map(a=>{ const col=this.EL[a.el].c; return {n:a.n,elColor:col,elLabel:this.EL[a.el].label,p2:a.p2,p4:a.p4,dom:a.dom,pieces:[0,1,2,3,4].map(()=>this.stripe(col,.12))}; }); return {sets}; }
+    if(tab==='tierlists'){ const scale=[['S','#f0808f'],['A','#f0c25a'],['B','#6fc9b3'],['C','#7fd3e8']]; const el=this.state.tierEl;
+      const rows=scale.map(x=>({label:x[0],color:x[1],bg:this.hexA(x[1],.14),border:this.hexA(x[1],.45),chars:this.ROSTER.filter(c=>this.tierDisplay(c)===x[0]&&(el==='all'||c.e===el)).map(c=>this.discFor(c.n))}));
+      const elTabs=[{id:'all',label:'Tous'}].concat(Object.keys(this.EL).map(id=>({id,label:this.EL[id].label}))).map(t=>({id:t.id,label:t.label,active:el===t.id,onClick:()=>this.setState({tierEl:t.id}),bg:el===t.id?this.hexA(ac,.2):'rgba(255,255,255,.04)',border:el===t.id?this.hexA(ac,.5):'rgba(255,255,255,.09)',fg:el===t.id?'#fff':'#c8c0d0'}));
+      return {rows,elTabs};
+    }
+    if(tab==='equipes'){ return {teams:this.TEAMS.map(t=>({n:t.n,tag:t.tag,desc:t.desc,members:t.members.map(m=>this.discFor(m))}))}; }
+    if(tab==='bestiaire'){ const catCol={'Boss de monde':'#f0808f','Boss hebdomadaire':'#f0c25a','Élite':'#6fc9b3','Monstre commun':'#9a93a6'};
+      return {items:this.BESTIARY.map(b=>{ const col=catCol[b.cat]||'#9a93a6'; return {n:b.n,cat:b.cat,region:b.region,drops:b.drops,catColor:col,catBg:this.hexA(col,.16),stripe:this.stripe(col,.14)}; })};
+    }
+    if(tab==='succes'){ const cats=this.ACHVCATS.map(c=>({n:c.n,done:c.done,total:c.total,pct:Math.round(c.done/c.total*100)+'%'}));
+      const done=this.ACHVCATS.reduce((a,c)=>a+c.done,0),all=this.ACHVCATS.reduce((a,c)=>a+c.total,0);
+      const list=this.ACHVLIST.map(a=>({n:a.n,desc:a.desc,primos:a.primos,pipBg:a.done?ac:'transparent',pipBorder:a.done?ac:'rgba(255,255,255,.25)'}));
+      return {cats,list,done,all};
+    }
+    if(tab==='exploration'){ return {regions:this.REGIONS.map(r=>({n:r.n,pct:r.pct,pctLabel:r.pct+' %',ocul:r.ocul,have:r.have,total:r.total,chests:r.chests}))}; }
+    if(tab==='carte'){ const cats=[{l:'Points de téléportation',count:23,c:'#7fc4f2'},{l:'Statues des Sept',count:7,c:'#f0c25a'},{l:'Coffres',count:214,c:'#f0808f'},{l:'Oculus',count:22,c:'#a9c94f'},{l:'Ressources',count:156,c:'#6fc9b3'},{l:'Marchands',count:18,c:'#bb8fe4'}];
+      const regions=['Mondstadt','Liyue','Inazuma','Sumeru','Fontaine','Natlan'].map(n=>({label:n,onClick:()=>this.setState({mapRegion:n}),bg:this.state.mapRegion===n?this.hexA(ac,.2):'rgba(255,255,255,.04)',border:this.state.mapRegion===n?this.hexA(ac,.5):'rgba(255,255,255,.09)',fg:this.state.mapRegion===n?'#fff':'#c8c0d0'}));
+      return {cats,regions,activeRegion:this.state.mapRegion};
+    }
+    if(tab==='donnees'){ return {sources:[{n:'Profil HoYoLAB',desc:'Compte, personnages possédés et progression d\'exploration.'},{n:'Enka.Network',desc:'Builds, artéfacts et statistiques détaillées.'},{n:'Project Amber',desc:'Base de données : personnages, armes, matériaux.'},{n:'Base communautaire',desc:'Tier lists, équipes recommandées et guides.'}]}; }
+    return {};
+  }
+
+  hexA(hex,a){ const n=parseInt(hex.slice(1),16); const r=(n>>16)&255,g=(n>>8)&255,b=n&255; return 'rgba('+r+','+g+','+b+','+a+')'; }
+  acColors(){ const ac=this.props.accent||'#e05a72'; return {ac, soft:this.hexA(ac,.16), line:this.hexA(ac,.5), glow:this.hexA(ac,.34)}; }
+  portrait(c){ return 'radial-gradient(120% 85% at 50% 0%, '+this.hexA(c,.3)+', transparent 62%), repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 9px, rgba(255,255,255,0) 9px 18px), linear-gradient(180deg,#15111d,#0c0913)'; }
+  stripe(c,a){ a=a||.14; return 'repeating-linear-gradient(135deg, '+this.hexA(c,a)+' 0 9px, '+this.hexA(c,a*0.35)+' 9px 18px), linear-gradient(180deg,#15111d,#0d0a14)'; }
+  nameMap(){ if(!this._nm){ this._nm={}; this.ROSTER.forEach(c=>this._nm[c.n]=c); } return this._nm; }
+  roleOf(ch){ return ch.role || (ch.r===5?'dps':'support'); }
+  tierOf(ch){ return ch.tier || (ch.r===5?'A':'B'); }
+  bump(t,d){ const s=['S','A','B','C','D','F']; let i=s.indexOf(t); if(i<0)i=1; i=Math.max(0,Math.min(s.length-1,i+d)); return s[i]; }
+  dedupe(a){ return a.filter((x,i)=>a.indexOf(x)===i); }
+
+  go(id){ this.setState({tab:id, selected:null, help:false}); }
+  toggle(key,val){ this.setState(st=>{ const a=st[key]; return {[key]: a.includes(val)? a.filter(x=>x!==val):[...a,val]}; }); }
+
+  filtered(){ const s=this.state; return this.ROSTER.filter(c=>{
+    if(s.scope==='mine' && !this.OWNED[c.n]) return false;
+    if(s.els.length && !s.els.includes(c.e)) return false;
+    if(s.wps.length && !s.wps.includes(c.w)) return false;
+    if(s.rars.length && !s.rars.includes(c.r)) return false;
+    if(s.q && !c.n.toLowerCase().includes(s.q.toLowerCase())) return false;
+    return true;
+  }); }
+
+  mapCard(ch){ const e=this.EL[ch.e], w=this.WP[ch.w]; const rar=ch.r===5?{label:'5★',c:'#f0c25a'}:{label:'4★',c:'#c79be8'}; const own=this.OWNED[ch.n];
+    return { name:ch.n, elColor:e.c, elLabel:e.label,
+      tintA:this.hexA(e.c,.2), tintB:'rgba(11,9,17,.74)', tintBorder:this.hexA(e.c, own?.5:.3),
+      glow:this.hexA(rar.c,.32), rarLabel:rar.label, rarColor:rar.c, portrait:this.portrait(e.c), plate:this.hexA(e.c,.14),
+      labelArt:'splash · '+ch.n, sub: own?('Nv. '+own.level+' · C'+own.const+' · '+e.label):(rar.label+' · '+w.short),
+      open:()=>this.setState({selected:ch.n, buildIdx:0}) };
+  }
+
+  statTemplate(role,el){ const T={
+    dps:{sablier:'ATQ%',coupe:el+' DGT',diademe:'DGT / Taux Crit',subs:[['DGT & Taux Crit',5],['ATQ%',4],['Maîtrise élémentaire',3],["Recharge d'énergie",2]]},
+    support:{sablier:"Recharge d'énergie",coupe:el+' DGT / ATQ%',diademe:'DGT / Taux Crit',subs:[["Recharge d'énergie",5],['Maîtrise élémentaire',4],['DGT & Taux Crit',3],['ATQ%',2]]},
+    healer:{sablier:'PV% / Recharge',coupe:'PV% / Bonus soin',diademe:'Bonus de soin / PV%',subs:[['PV%',5],["Recharge d'énergie",4],['Maîtrise élémentaire',2]]}
+  }; return T[role]||T.dps; }
+
+  setsFor(ch){ const S={
+    pyro:[["Sorcière écarlate des flammes","+15% DGT Pyro, bonus de DGT après la compétence."],["Emblème du destin brisé","Recharge d'énergie et DGT de déchaînement."]],
+    hydro:[["Chasseur de la Maréchaussée","DGT crit accru après avoir subi/infligé des soins."],["Cœur de la profondeur","+DGT Hydro et attaques normales/chargées."]],
+    electro:[["Fureur foudroyante","+DGT Électro et bonus de réactions."],["Emblème du destin brisé","Recharge d'énergie et DGT de déchaînement."]],
+    cryo:[["Errances glaciales","+DGT crit sur les ennemis Cryo ou gelés."],["Cœur de la profondeur","Set de dégâts alternatif."]],
+    dendro:[["Mémoire du bosquet doré","+Maîtrise élémentaire et DGT Dendro."],["Sillage de bambou vert","Réduction de la RES élémentaire des ennemis."]],
+    geo:[["Coquille du magma d'or","+DGT Géo et bonus lié au bouclier."],["Insulaire archaïque","Bonus de DGT global de l'équipe."]],
+    anemo:[["Sillage de bambou vert","Réduction de la RES élémentaire des ennemis."],["Cavalier des tempêtes","Soutien Anémo et regroupement."]]
+  }; const a=S[ch.e]||S.pyro; return a.map(x=>({name:x[0],effect:x[1]})).concat([{name:'Combinaison 2 + 2',effect:'Alternative flexible selon les pièces disponibles.'}]); }
+
+  buildsFor(ch,el){ return [
+    {name:'Build principal',tag:'DPS',weapons:[{name:'Arme signature',note:'5★'},{name:'Alternative premium',note:'5★'},{name:'Option accessible',note:'4★'}],set:'Set principal (4 pièces)',sablier:'ATQ%',coupe:el+' DGT',diademe:'DGT / Taux Crit',priority:'Compétence élémentaire > Déchaînement > Attaque normale'},
+    {name:'Alternatif',tag:'F2P',weapons:[{name:'Arme forgée',note:'4★'},{name:'Récompense gratuite',note:'4★'},{name:'Battle pass',note:'4★'}],set:'Combinaison 2 + 2',sablier:'ATQ%',coupe:el+' DGT',diademe:'Taux Crit',priority:'Déchaînement > Compétence élémentaire > Attaque normale'},
+    {name:'Soutien',tag:'Utilité',weapons:[{name:'Arme de recharge',note:'4★'},{name:'Série Favonius',note:'4★'},{name:'Série sacrificielle',note:'4★'}],set:'Set de soutien (4 pièces)',sablier:"Recharge d'énergie",coupe:'ATQ% / Soin',diademe:'DGT / Bonus soin',priority:'Compétence élémentaire > Déchaînement > Attaque normale'}
+  ]; }
+
+  teamsFor(ch){ const O={pyro:['Xingqiu','Kazuha','Bennett'],hydro:['Nahida','Kazuha','Zhongli'],electro:['Xingqiu','Bennett','Nahida'],cryo:['Furina','Kazuha','Zhongli'],dendro:['Xingqiu','Furina','Yelan'],geo:['Zhongli','Bennett','Kazuha'],anemo:['Bennett','Xiangling','Zhongli']};
+    const base=O[ch.e]||['Bennett','Kazuha','Zhongli'];
+    const t1=this.dedupe([ch.n,...base]).slice(0,4);
+    const t2=this.dedupe([ch.n,'Bennett','Xingqiu','Zhongli']).slice(0,4);
+    return [{name:'Équipe méta',tag:'Réaction',members:t1},{name:'Alternative accessible',tag:'F2P',members:t2}];
+  }
+
+  buildSheet(ch){ const {ac}=this.acColors(); const e=this.EL[ch.e], w=this.WP[ch.w];
+    const rar=ch.r===5?{label:'5★',c:'#f0c25a'}:{label:'4★',c:'#c79be8'};
+    const facts=[
+      {k:'Élément',v:e.label},{k:'Arme',v:w.label},{k:'Rareté',v:rar.label},
+      {k:'Région',v:ch.region||'À compléter'},{k:'Anniversaire',v:ch.bday||'À compléter'},
+      {k:'Constellation',v:ch.cn||'À compléter'},{k:'Doubleur FR',v:ch.vaFr||'À compléter'},{k:'Doubleur JP',v:ch.vaJp||'À compléter'}
+    ];
+    const scale=['S','A','B','C','D','F']; const tier=this.tierOf(ch);
+    const tierScale=scale.map(l=>{ const a=l===tier; return {label:l, marker:a?'★ ici':'', fg:a?'#160a0e':'rgba(236,231,239,.5)', bg:a?('linear-gradient(180deg, '+ac+', '+this.hexA(ac,.72)+')'):'rgba(255,255,255,.03)', border:a?this.hexA(ac,.6):'rgba(255,255,255,.06)', glow:a?('0 10px 28px '+this.hexA(ac,.4)):'none'}; });
+    const rc={S:'#f0808f',A:'#f0c25a',B:'#6fc9b3',C:'#7fd3e8',D:'#9a93a6',F:'#9a93a6'};
+    const role=this.roleOf(ch);
+    const tierRoles=[{role:'Rôle principal',t:tier},{role:'En soutien / flex',t:this.bump(tier,1)},{role:'Spiral Abyss',t:tier}].map(x=>{ const col=rc[x.t]||'#9a93a6'; return {role:x.role,tier:x.t,color:col,bg:this.hexA(col,.14),border:this.hexA(col,.4)}; });
+    const stt = ch.stats || this.statTemplate(role,e.label);
+    const stats={sablier:stt.sablier,coupe:stt.coupe,diademe:stt.diademe,subs:stt.subs.map(s=>({label:s[0],pct:(s[1]/5*100)+'%'}))};
+    const sets=this.setsFor(ch).map(s=>({name:s.name,effect:s.effect,stripe:this.stripe(e.c)}));
+    const raw=this.buildsFor(ch,e.label); const bi=Math.min(this.state.buildIdx,raw.length-1);
+    const {soft,line}=this.acColors();
+    const builds=raw.map((b,i)=>({name:b.name,tag:b.tag,onClick:()=>this.setState({buildIdx:i}),bg:i===bi?soft:'rgba(255,255,255,.03)',border:i===bi?line:'rgba(255,255,255,.08)',fg:i===bi?'#fff':'#cfc7da'}));
+    const bd=raw[bi]; const buildDetail={weapons:bd.weapons,set:bd.set,sablier:bd.sablier,coupe:bd.coupe,diademe:bd.diademe,priority:bd.priority};
+    const talents=[
+      {type:'Attaque normale',badge:'AN',desc:"Chaîne d'attaques, attaque chargée et attaque plongeante.",prioLabel:'Priorité 3'},
+      {type:'Compétence élémentaire',badge:'C',desc:'Compétence '+e.label+' — cœur de la rotation.',prioLabel:'Priorité 1'},
+      {type:'Déchaînement élémentaire',badge:'D',desc:'Ultime '+e.label+' à fort impact.',prioLabel:'Priorité 2'}
+    ];
+    const consts=[1,2,3,4,5,6].map(n=>{ const key=(n===1||n===2||n===6); return {n:'C'+n, name:key?'Constellation clé':'Constellation', desc:'Effet de constellation à documenter.', ring:key?this.hexA(ac,.5):'rgba(255,255,255,.08)', numColor:key?ac:'rgba(236,231,239,.6)'}; });
+    const teams=this.teamsFor(ch).map(t=>({name:t.name,tag:t.tag,members:t.members.map(nm=>{ const mc=this.nameMap()[nm]; const cc=mc?this.EL[mc.e].c:'#8a8394'; return {name:nm,color:cc,portrait:this.portrait(cc),glow:this.hexA(cc,.45)}; })}));
+    const materials=[
+      {label:'Élévation (boss)',sub:'Matériau de monde',qty:'×46'},
+      {label:'Spécialité locale',sub:ch.region||'Région',qty:'×168'},
+      {label:'Matériau commun',sub:'Butin de monstres',qty:'×36'},
+      {label:'Livres de talent',sub:'Domaine dédié',qty:'×—'},
+      {label:'Gemme élémentaire',sub:e.label,qty:'×—'},
+      {label:'Mora',sub:'Monnaie',qty:'×—'}
+    ].map(m=>({label:m.label,sub:m.sub,qty:m.qty,stripe:this.stripe(e.c,.12)}));
+    return {name:ch.n,title:ch.title||'Personnage jouable',rarLabel:rar.label,rarColor:rar.c,elLabel:e.label,elColor:e.c,weaponLabel:w.label,elChipBg:this.hexA(e.c,.16),
+      portrait:this.portrait(e.c),artLabel:'splash art · '+ch.n,heroGlow:this.hexA(rar.c,.28),heroBorder:this.hexA(rar.c,.35),
+      facts,tierScale,tierCaption:'Classé '+tier+' comme '+role+' ('+e.label+'). Sa valeur dépend de son investissement et de son équipe.',tierRoles,
+      stats,sets,builds,buildDetail,talents,consts,teams,materials};
+  }
+
+  renderVals(){ const {ac,soft,line,glow}=this.acColors(); const s=this.state;
+    const D={'Aéré':{min:'184px',gap:'22px',pad:'40px 48px 90px'},'Équilibré':{min:'158px',gap:'18px',pad:'34px 42px 90px'},'Compact':{min:'132px',gap:'13px',pad:'28px 32px 80px'}}[this.props.density||'Équilibré'];
+    const neb=(this.props.nebula==null?100:this.props.nebula)/100;
+    const navSections=this.NAV.map(sec=>({title:sec.t,items:sec.items.map(pair=>{ const id=pair[0],label=pair[1]; const active=s.tab===id&&!s.selected; return {id,label,active,color:active?'#fff':'#b7aec2',bg:active?('linear-gradient(90deg, '+soft+', '+this.hexA(ac,.03)+')'):'transparent',barOp:active?1:0,dot:active?ac:'rgba(255,255,255,.26)',onClick:()=>this.go(id)}; })}));
+    const showSheet=!!s.selected;
+    const showChars=!showSheet&&s.tab==='personnages';
+    const showRoadmap=!showSheet&&s.tab==='roadmap';
+    const BUILT=['dashboard','calendrier','codes','armes','artefacts','tierlists','equipes','bestiaire','succes','exploration','carte','donnees','reglages'];
+    const onPage=!showSheet&&!showChars&&!showRoadmap;
+    const page=onPage?this.buildPage(s.tab):null;
+    const isP=(id)=>onPage&&s.tab===id;
+    const showEmpty=onPage&&!BUILT.includes(s.tab);
+    const total=this.ROSTER.length;
+    const chars=this.filtered().map(c=>this.mapCard(c));
+    const nOwn=this.ROSTER.filter(c=>this.OWNED[c.n]).length;
+    const countLabel=s.scope==='mine'?(chars.length+' personnage(s) possédé(s) sur '+nOwn):(chars.length+' personnage(s) affiché(s) sur '+total);
+    const chip=(on,col)=>({bg:on?this.hexA(col,.22):'rgba(255,255,255,.04)',border:on?this.hexA(col,.6):'rgba(255,255,255,.09)',fg:on?'#fff':'#c8c0d0'});
+    const elChips=Object.keys(this.EL).map(id=>{ const e=this.EL[id]; const on=s.els.includes(id); return Object.assign({id,label:e.label,color:e.c,toggle:()=>this.toggle('els',id)}, chip(on,e.c)); });
+    const wpChips=Object.keys(this.WP).map(id=>{ const wv=this.WP[id]; const on=s.wps.includes(id); return Object.assign({id,label:wv.label,toggle:()=>this.toggle('wps',id)}, chip(on,ac)); });
+    const rarChips=[5,4].map(r=>{ const on=s.rars.includes(r); const col=r===5?'#f0c25a':'#c79be8'; return Object.assign({label:r+'★',toggle:()=>this.toggle('rars',r)}, chip(on,col)); });
+    const mkScope=(v)=>({onClick:()=>this.setState({scope:v}),bg:s.scope===v?('linear-gradient(90deg, '+ac+', '+this.hexA(ac,.75)+')'):'transparent',fg:s.scope===v?'#fff':'#c2bacf'});
+    const emptyInfo=this.TABMETA[s.tab]||{title:'Bientôt',desc:'Cette section reste à concevoir.'};
+    const SM={done:{c:ac,l:'Fait',fill:true},wip:{c:'#f0c25a',l:'En cours',fill:true},todo:{c:'#6a6475',l:'À faire',fill:false}};
+    const roadmap=this.ROADMAP.map(g=>({title:g.title,count:g.items.length,items:g.items.map(it=>{ const m=SM[it.status]; return {label:it.label,note:it.note,statusLabel:m.l,statusColor:m.c,pipBg:m.fill?m.c:'transparent',pipBorder:m.c,pipGlow:m.fill?this.hexA(m.c,.5):'transparent'}; })}));
+    const sheet=s.selected?this.buildSheet(this.nameMap()[s.selected]):null;
+    return {
+      navSections, ac, acSoft:soft, acLine:line, acGlow:glow, nebOpacity:neb, wrapPad:D.pad, cardMin:D.min, gap:D.gap,
+      showSheet, showChars, showRoadmap, showEmpty,
+      chars, countLabel, elChips, wpChips, rarChips, scopeMine:mkScope('mine'), scopeAll:mkScope('all'),
+      q:s.q, onSearch:(ev)=>this.setState({q:ev.target.value}),
+      help:s.help, toggleHelp:()=>this.setState({help:!s.help}),
+      helpText:"Filtre par élément, arme et rareté. « Mes personnages » n'affiche que ceux détectés sur ton compte. Clique une carte pour ouvrir sa fiche complète.",
+      noResults:showChars&&chars.length===0, emptyInfo, goRoadmap:()=>this.go('roadmap'),
+      roadmap, roadmapNav:{onClick:()=>this.go('roadmap'), bg:(s.tab==='roadmap'&&!s.selected)?soft:'transparent', fg:(s.tab==='roadmap'&&!s.selected)?'#fff':'#c9b8d6'},
+      goDonnees:()=>this.go('donnees'), goReglages:()=>this.go('reglages'),
+      page, isDashboard:isP('dashboard'), isCalendrier:isP('calendrier'), isCodes:isP('codes'), isArmes:isP('armes'), isArtefacts:isP('artefacts'), isTierlists:isP('tierlists'), isEquipes:isP('equipes'), isBestiaire:isP('bestiaire'), isSucces:isP('succes'), isExploration:isP('exploration'), isCarte:isP('carte'), isDonnees:isP('donnees'), isReglages:isP('reglages'),
+      back:()=>this.setState({selected:null, buildIdx:0}), sheet
+    };
+  }
+}
+</script>
+</body>
+</html>
