@@ -18,6 +18,17 @@ const layers = new Map(); // labelId → L.LayerGroup
 const labelIndex = new Map(); // labelId → { name, icon }
 let hideCollected = false;
 
+// Catégories cochées, mémorisées PAR NOM (les id diffèrent selon le monde) et
+// persistées : elles survivent au changement de monde et à la fermeture de l'app.
+const ACTIVE_KEY = "gensheet.mapActiveCats";
+const activeCats = new Set(loadActive());
+function loadActive() {
+  try { return JSON.parse(localStorage.getItem(ACTIVE_KEY) || "[]"); } catch { return []; }
+}
+function saveActive() {
+  localStorage.setItem(ACTIVE_KEY, JSON.stringify([...activeCats]));
+}
+
 export const map = {
   render() {
     return `
@@ -43,7 +54,7 @@ export const map = {
   init(el) {
     rootEl = el;
     loadMapList();
-    loadCategories();
+    loadCategories().then(applyActiveCats);
     el.querySelector("#map-cats").addEventListener("change", (e) => {
       const cb = e.target.closest("input[data-label]");
       if (cb) toggleCategory(Number(cb.dataset.label), cb.checked);
@@ -75,6 +86,7 @@ export const map = {
   async onShow() {
     if (lmap) { lmap.invalidateSize(); return; }
     await buildMap();
+    applyActiveCats(); // charge les catégories mémorisées maintenant que la carte existe
   },
 };
 
@@ -187,26 +199,30 @@ function toggleFullscreen(el) {
   requestAnimationFrame(() => lmap?.invalidateSize());
 }
 
-// Change de monde (Teyvat, Enkanomiya, Gouffre…) : reconstruit tout.
+// Change de monde (Teyvat, Enkanomiya, Gouffre…) : reconstruit tout, mais garde
+// les catégories cochées (elles sont réappliquées par nom sur le nouveau monde).
 async function switchMap(id) {
   mapId = id;
   for (const g of layers.values()) lmap?.removeLayer(g);
   layers.clear();
-  rootEl.querySelectorAll('#map-cats input[data-label]').forEach((cb) => (cb.checked = false));
   await buildMap();
   await loadCategories();
+  applyActiveCats();
 }
 
 // Coordonnée jeu → position Leaflet (origine + axe y inversé).
 const toLatLng = (p) => [-(p.y + info.origin[1]), p.x + info.origin[0]];
 
-async function toggleCategory(labelId, on) {
-  if (!lmap) return;
-  if (!on) {
-    const group = layers.get(labelId);
-    if (group) { lmap.removeLayer(group); layers.delete(labelId); }
-    return;
-  }
+// Clic utilisateur : mémorise le choix (par nom, persistant) puis charge/retire.
+function toggleCategory(labelId, on) {
+  const name = labelIndex.get(labelId)?.name;
+  if (name) on ? activeCats.add(name) : activeCats.delete(name);
+  saveActive();
+  on ? loadCategory(labelId) : unloadCategory(labelId);
+}
+
+async function loadCategory(labelId) {
+  if (!lmap || layers.has(labelId)) return; // carte pas prête ou déjà affiché
   const group = L.markerClusterGroup({ maxClusterRadius: 40, chunkedLoading: true });
   layers.set(labelId, group);
   try {
@@ -217,6 +233,22 @@ async function toggleCategory(labelId, on) {
     layers.delete(labelId);
     console.warn("map_points", e);
   }
+}
+
+function unloadCategory(labelId) {
+  const group = layers.get(labelId);
+  if (group) { lmap?.removeLayer(group); layers.delete(labelId); }
+}
+
+// Re-coche les catégories mémorisées (par nom) et charge leurs marqueurs si la
+// carte est prête. Appelé après (re)chargement de l'arbre et après construction.
+function applyActiveCats() {
+  rootEl?.querySelectorAll("#map-cats input[data-label]").forEach((cb) => {
+    const id = Number(cb.dataset.label);
+    const active = activeCats.has(labelIndex.get(id)?.name);
+    cb.checked = active;
+    if (active) loadCategory(id);
+  });
 }
 
 function addMarker(group, labelId, p) {
@@ -245,11 +277,12 @@ async function toggleCollected(p, marker, group) {
   }
 }
 
-// Recharge les couches actives (ex. bascule « masquer les récupérés »).
+// Recharge les couches affichées (ex. bascule « masquer les récupérés ») sans
+// modifier la mémoire des catégories cochées.
 function redrawAll() {
   for (const labelId of [...layers.keys()]) {
-    toggleCategory(labelId, false);
-    toggleCategory(labelId, true);
+    unloadCategory(labelId);
+    loadCategory(labelId);
   }
 }
 
