@@ -2,6 +2,7 @@
 //! catalogue) + suivi local des points récupérés.
 
 use std::collections::HashSet;
+use std::sync::{Mutex, OnceLock};
 
 use serde::{Deserialize, Serialize};
 use tauri::State;
@@ -53,13 +54,25 @@ pub async fn map_labels(db: State<'_, Db>, map_id: i64) -> Result<Vec<Label>> {
     cached(db.inner(), &format!("map_labels_{map_id}"), map::fetch_labels(map_id)).await
 }
 
+/// Cache mémoire des points par carte : le jeu complet (~83k) n'est parsé qu'une
+/// fois par session au lieu de re-lire le gros JSON du cache DB à chaque coche.
+fn points_cache() -> &'static Mutex<std::collections::HashMap<i64, Vec<Point>>> {
+    static CACHE: OnceLock<Mutex<std::collections::HashMap<i64, Vec<Point>>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(std::collections::HashMap::new()))
+}
+
 /// Renvoie uniquement les points des catégories demandées (le jeu complet fait
 /// des dizaines de milliers de points ; on filtre côté backend).
 #[tauri::command]
 pub async fn map_points(db: State<'_, Db>, map_id: i64, label_ids: Vec<i64>) -> Result<Vec<Point>> {
-    let all: Vec<Point> = cached(db.inner(), &format!("map_points_{map_id}"), map::fetch_points(map_id)).await?;
+    if !points_cache().lock().unwrap().contains_key(&map_id) {
+        let all = cached(db.inner(), &format!("map_points_{map_id}"), map::fetch_points(map_id)).await?;
+        points_cache().lock().unwrap().insert(map_id, all);
+    }
     let wanted: HashSet<i64> = label_ids.into_iter().collect();
-    Ok(all.into_iter().filter(|p| wanted.contains(&p.label_id)).collect())
+    let cache = points_cache().lock().unwrap();
+    let all = cache.get(&map_id).expect("inséré juste au-dessus");
+    Ok(all.iter().filter(|p| wanted.contains(&p.label_id)).cloned().collect())
 }
 
 // --- Suivi de complétion (local) -------------------------------------------

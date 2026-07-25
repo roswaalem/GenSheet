@@ -764,7 +764,18 @@ select.state {
 .map-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--tx-2); }
 .map-io { display: flex; gap: 6px; margin-top: 2px; }
 .map-io .btn-ghost { flex: 1; }
-.map-cats { display: flex; flex-direction: column; gap: 4px; }
+.map-search { width: 100%; min-width: 0; margin-top: 2px; padding: 7px 10px; font-size: 12.5px; }
+
+/* Tooltip d'un marqueur au survol, thème sombre. */
+.leaflet-tooltip {
+  background: rgba(10, 12, 35, 0.92); color: var(--tx-1);
+  border: 1px solid var(--panel-border); border-radius: 8px;
+  font: 500 12px var(--font-ui); padding: 4px 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+.leaflet-tooltip-top::before { border-top-color: rgba(10, 12, 35, 0.92); }
+.map-cats { display: flex; flex-direction: column; }
+.map-group { margin-bottom: 4px; }
 .map-group-head {
   width: 100%; text-align: left; padding: 8px 6px; border: none; cursor: pointer;
   background: transparent; color: var(--tx-1); font: 600 12.5px var(--font-ui);
@@ -781,6 +792,24 @@ select.state {
 }
 .map-cat:hover { background: rgba(255, 255, 255, 0.04); color: var(--tx-1); }
 .map-cat img { width: 20px; height: 20px; object-fit: contain; }
+
+/* --- Animation du filtrage par recherche --- */
+.map-group, .map-group-head, .map-group-body, .map-cat {
+  transition: max-height 0.22s ease, opacity 0.2s ease, transform 0.22s ease,
+              padding 0.22s ease, margin 0.22s ease;
+}
+.map-group-head, .map-cat { overflow: hidden; }
+.map-cat { max-height: 80px; }        /* assez pour un nom sur 2 lignes */
+.map-group-head { max-height: 80px; }
+/* Non-correspondants : collapse + fondu + glissé vers la droite. */
+.map-cat.filtered,
+.map-group.filtered .map-group-head {
+  max-height: 0; opacity: 0; transform: translateX(28px);
+  padding-top: 0; padding-bottom: 0; pointer-events: none;
+}
+.map-group.filtered { opacity: 0; margin-bottom: 0; pointer-events: none; }
+.map-group.filtered .map-group-body { padding-top: 0; padding-bottom: 0; }
+/* Réapparition : glisse en fondu depuis la droite (état par défaut = en place). */
 
 .map-canvas {
   flex: 1; border-radius: 14px; overflow: hidden;

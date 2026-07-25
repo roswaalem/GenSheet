@@ -17,6 +17,9 @@ const collected = new Set();
 const layers = new Map(); // labelId → L.LayerGroup
 const labelIndex = new Map(); // labelId → { name, icon }
 let hideCollected = false;
+// Texte de recherche : gardé en mémoire (survit aux aller-retours de page) mais
+// PAS en localStorage → vidé au redémarrage de l'app.
+let searchQuery = "";
 
 // Catégories cochées, mémorisées PAR NOM (les id diffèrent selon le monde) et
 // persistées : elles survivent au changement de monde et à la fermeture de l'app.
@@ -39,10 +42,11 @@ export const map = {
             <label class="map-check"><input type="checkbox" id="map-hide" /> Masquer les récupérés</label>
             <span class="muted" id="map-count"></span>
             <div class="map-io">
-              <button class="btn-ghost sm" id="map-export" type="button">Exporter</button>
               <button class="btn-ghost sm" id="map-import" type="button">Importer</button>
+              <button class="btn-ghost sm" id="map-export" type="button">Exporter</button>
               <input type="file" id="map-file" accept="application/json,.json" hidden />
             </div>
+            <input class="text-input map-search" id="map-search" type="search" placeholder="Rechercher une catégorie…" autocomplete="off" />
           </div>
           <div class="map-cats" id="map-cats"><p class="muted">Chargement des catégories…</p></div>
         </aside>
@@ -54,7 +58,18 @@ export const map = {
   init(el) {
     rootEl = el;
     loadMapList();
-    loadCategories().then(applyActiveCats);
+    loadCategories().then(afterTree);
+    let searchTimer;
+    el.querySelector("#map-search").addEventListener("input", (e) => {
+      // Efface réellement (il y avait du texte, maintenant vide) → on replie tout.
+      const cleared = searchQuery.trim() !== "" && e.target.value.trim() === "";
+      searchQuery = e.target.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        if (cleared) collapseAllGroups();
+        applySearch();
+      }, 160); // léger debounce
+    });
     el.querySelector("#map-cats").addEventListener("change", (e) => {
       const cb = e.target.closest("input[data-label]");
       if (cb) toggleCategory(Number(cb.dataset.label), cb.checked);
@@ -89,6 +104,40 @@ export const map = {
     applyActiveCats(); // charge les catégories mémorisées maintenant que la carte existe
   },
 };
+
+// Après (re)chargement de l'arbre de catégories : recoche les actives + réapplique
+// la recherche (utile après un changement de monde qui reconstruit l'arbre).
+function afterTree() {
+  applyActiveCats();
+  applySearch();
+}
+
+// Filtre l'arbre selon la recherche, avec animations (collapse + fondu + glissé).
+// Objet précis (une catégorie matche par son nom) → déroule son groupe et montre
+// les correspondances. Nom de groupe → montre le groupe, cache les autres.
+function applySearch() {
+  const input = rootEl?.querySelector("#map-search");
+  if (input && input.value !== searchQuery) input.value = searchQuery;
+  const q = searchQuery.trim().toLowerCase();
+  rootEl?.querySelectorAll(".map-group").forEach((group) => {
+    const gName = group.querySelector(".map-group-head")?.textContent.trim().toLowerCase() || "";
+    const gMatch = !!q && gName.includes(q);
+    let leafMatch = false;
+    group.querySelectorAll(".map-cat").forEach((cat) => {
+      const own = cat.textContent.trim().toLowerCase().includes(q);
+      const show = !q || gMatch || own;
+      cat.classList.toggle("filtered", !show);
+      if (q && own) leafMatch = true;
+    });
+    group.classList.toggle("filtered", !(!q || gMatch || leafMatch));
+    if (leafMatch) group.classList.add("open"); // objet précis trouvé → on déroule
+  });
+}
+
+// Replie tous les groupes (après effacement d'une recherche).
+function collapseAllGroups() {
+  rootEl?.querySelectorAll(".map-group.open").forEach((g) => g.classList.remove("open"));
+}
 
 async function loadMapList() {
   try {
@@ -207,7 +256,7 @@ async function switchMap(id) {
   layers.clear();
   await buildMap();
   await loadCategories();
-  applyActiveCats();
+  afterTree();
 }
 
 // Coordonnée jeu → position Leaflet (origine + axe y inversé).
@@ -254,12 +303,13 @@ function applyActiveCats() {
 function addMarker(group, labelId, p) {
   const done = collected.has(p.id);
   if (done && hideCollected) return;
-  const url = labelIndex.get(labelId)?.icon;
+  const cat = labelIndex.get(labelId);
   const cls = `map-pin${done ? " done" : ""}`;
-  const icon = url
-    ? L.icon({ iconUrl: url, iconSize: [30, 30], iconAnchor: [15, 15], className: cls })
-    : L.divIcon({ className: `map-dot ${cls}`, iconSize: [12, 12] });
-  const marker = L.marker(toLatLng(p), { icon, opacity: done ? 0.4 : 1 });
+  const icon = cat?.icon
+    ? L.icon({ iconUrl: cat.icon, iconSize: [40, 40], iconAnchor: [20, 20], className: cls })
+    : L.divIcon({ className: `map-dot ${cls}`, iconSize: [18, 18] });
+  const marker = L.marker(toLatLng(p), { icon, opacity: done ? 0.45 : 1 });
+  if (cat?.name) marker.bindTooltip(cat.name, { direction: "top", offset: [0, -18] });
   marker.on("click", () => toggleCollected(p, marker, group));
   group.addLayer(marker);
 }
