@@ -6,6 +6,12 @@
 // La plus récente est en premier.
 
 export const CHANGELOG = [
+{
+    version: "0.1.4",
+    changes: [
+      "Carte interactive : Ajout de barre de recherche et animations. Agrandissement des points d'intérêts sur la carte, et détails affichés au survol.",
+    ],
+  },
   {
     version: "0.1.3",
     changes: [
