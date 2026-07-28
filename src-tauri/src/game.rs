@@ -20,7 +20,7 @@ pub fn locate() -> Result<GameInstall> {
             return Ok(install);
         }
     }
-    Err(Error::Msg("Genshin introuvable : sélectionne le dossier du jeu manuellement.".into()))
+    Err(Error::Msg("Genshin introuvable : sélection manuelle du dossier du jeu nécessaire.".into()))
 }
 
 pub fn validate(path: &str) -> Result<GameInstall> {

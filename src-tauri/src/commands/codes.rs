@@ -48,7 +48,7 @@ pub async fn codes_open_gift(app: AppHandle, code: Option<String>) -> Result<()>
         Some(c) => format!("{GIFT_URL}?code={c}"),
         None => GIFT_URL.to_string(),
     };
-    open_login_window(&app, GIFT_LABEL, &url, "Échange de codes — HoYoverse")
+    open_login_window(&app, GIFT_LABEL, &url, "Échange de codes : HoYoverse")
 }
 
 /// Regarde si la connexion sur la page officielle a abouti.

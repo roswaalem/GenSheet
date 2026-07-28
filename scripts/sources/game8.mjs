@@ -46,9 +46,13 @@ async function index() {
   return indexCache;
 }
 
+/** URL de la page game8 d'un personnage (partagée avec le scraper d'équipes). */
+export async function characterUrl(enName) {
+  return resolveUrl(await index(), enName);
+}
+
 export async function fetchGame8(enName) {
-  const idx = await index();
-  const url = resolveUrl(idx, enName);
+  const url = await characterUrl(enName);
   if (!url) return null;
   const html = await fetchHtml(url);
   if (!html) return null;

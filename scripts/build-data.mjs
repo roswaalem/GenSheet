@@ -10,6 +10,7 @@ import { dirname, join } from "node:path";
 
 import { fetchGame8 } from "./sources/game8.mjs";
 import { fetchKqm } from "./sources/kqm.mjs";
+import { fetchGameWith } from "./sources/gamewith.mjs";
 import { frWeapon, frArtifact, unresolvedNames } from "./normalize.mjs";
 import { frStat } from "./stats.mjs";
 import { aggregate } from "./aggregate.mjs";
@@ -19,6 +20,7 @@ const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "data", "
 const SOURCES = [
   { name: "game8", fetch: fetchGame8 },
   { name: "kqm", fetch: fetchKqm },
+  { name: "gamewith", fetch: fetchGameWith },
 ];
 
 // Roster depuis Ambr : id de jeu (= id utilisé par l'app) + nom anglais.

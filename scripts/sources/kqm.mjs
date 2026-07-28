@@ -21,13 +21,19 @@ function slugs(enName) {
   return [...new Set(out)];
 }
 
-export async function fetchKqm(enName) {
-  let $ = null;
+/** HTML de la quick guide d'un personnage (partagé avec le scraper d'équipes). */
+export async function quickguide(enName) {
   for (const s of slugs(enName)) {
     const html = await fetchHtml(`${BASE}${s}-quickguide/`);
-    if (html) { $ = cheerio.load(html); break; }
+    if (html) return html;
   }
-  if (!$) return null;
+  return null;
+}
+
+export async function fetchKqm(enName) {
+  const html = await quickguide(enName);
+  if (!html) return null;
+  const $ = cheerio.load(html);
 
   // Certaines fiches préfixent par la rareté ("5★ …") et listent "A / B / C".
   const clean = (t) => t.replace(/^\s*\d+\s*★\s*/, "").replace(/^\d\s*pc\s*/i, "").replace(/\([^)]*\)/g, "").replace(/[’]/g, "'").trim();

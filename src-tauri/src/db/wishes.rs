@@ -8,16 +8,27 @@ use super::Db;
 use crate::error::Result;
 use crate::gacha::WishItem;
 
-/// Bannières analysées : clé, libellé, et moyenne communautaire de référence
-/// pour un 5★ (utilisée pour l'indice de chance). Le regroupement des types
-/// (301 + 400 partagent le pity) vit dans `banner_filter`.
-const BANNERS: [(&str, &str, f64); 5] = [
-    ("301", "Personnage", 62.5),
-    ("302", "Arme", 62.5),
-    ("500", "Chronique", 62.5),
-    ("200", "Permanent", 62.5),
-    ("100", "Débutant", 62.5),
+/// Bannières analysées. Le regroupement des types (301 + 400 partagent le
+/// pity) vit dans `banner_filter`.
+///
+/// Clé, libellé, moyenne de référence, pity garanti, tirage du « soft pity »,
+/// probabilité de base d'un 5★ et points gagnés par tirage au-delà du seuil.
+///
+/// Valeurs mesurées par la communauté : la probabilité reste plate, puis bondit
+/// d'environ 6 points par tirage (7 sur la bannière d'arme, dont le seuil et le
+/// garanti sont tous deux plus bas).
+const BANNERS: [(&str, &str, f64, u64, u64, f64, f64); 5] = [
+    ("301", "Personnage", 62.5, 90, 74, 0.6, 6.0),
+    ("302", "Arme", 62.5, 80, 63, 0.7, 7.0),
+    ("500", "Chronique", 62.5, 90, 74, 0.6, 6.0),
+    ("200", "Permanent", 62.5, 90, 74, 0.6, 6.0),
+    ("100", "Débutant", 62.5, 90, 74, 0.6, 6.0),
 ];
+
+/// Les 5★ du lot permanent. En obtenir un sur la bannière personnage signifie
+/// avoir perdu le 50/50 : le 5★ suivant est alors forcément celui en vedette.
+const STANDARD_FIVES: [&str; 7] =
+    ["Qiqi", "Tighnari", "Keqing", "Mona", "Diluc", "Jean", "Dehya"];
 
 #[derive(Serialize)]
 pub struct WishPage {
@@ -58,6 +69,20 @@ pub struct BannerStats {
     pub reference_pity: f64,
     /// `avg - reference` : négatif = chanceux, positif = malchanceux.
     pub luck_delta: Option<f64>,
+    /// Tirages depuis le dernier 4★ (le 4★ est garanti au dixième).
+    pub pity_four: u64,
+    /// Pity auquel un 5★ tombe à coup sûr : 80 sur la bannière d'arme, 90 ailleurs.
+    pub hard_pity: u64,
+    /// Tirage à partir duquel les chances d'un 5★ grimpent fortement.
+    pub soft_pity: u64,
+    /// Probabilité de base d'un 5★, en pourcentage, avant le soft pity.
+    pub base_rate: f64,
+    /// Points de pourcentage gagnés à chaque tirage au-delà du soft pity.
+    pub soft_step: f64,
+    /// Le prochain 5★ sera-t-il forcément celui en vedette ? `None` là où la
+    /// question n'a pas lieu d'être (permanent, débutant) ou ne se déduit pas
+    /// de l'historique seul (arme, chronique, dont le système diffère).
+    pub guaranteed: Option<bool>,
     pub five_history: Vec<FiveStar>,
     pub primogems: u64,
 }
@@ -133,7 +158,7 @@ impl Db {
         let conn = self.0.lock().unwrap();
         let mut out = Vec::new();
 
-        for (key, label, reference) in BANNERS {
+        for (key, label, reference, hard_pity, soft_pity, base_rate, soft_step) in BANNERS {
             let filter = banner_filter(Some(key));
             let mut stmt = conn.prepare(&format!(
                 "SELECT rank_type, name, time FROM wishes {filter} ORDER BY id ASC",
@@ -147,17 +172,22 @@ impl Db {
             let mut total = 0u64;
             let mut four = 0u64;
             let mut since = 0u64;
+            let mut since_four = 0u64;
             let mut history = Vec::new();
             for row in rows {
                 let (rank, name, time) = row?;
                 total += 1;
                 since += 1;
+                since_four += 1;
                 match rank.as_str() {
                     "5" => {
                         history.push(FiveStar { name, pity: since, time });
                         since = 0;
                     }
-                    "4" => four += 1,
+                    "4" => {
+                        four += 1;
+                        since_four = 0;
+                    }
                     _ => {}
                 }
             }
@@ -166,6 +196,13 @@ impl Db {
             let avg = (five > 0)
                 .then(|| history.iter().map(|f| f.pity).sum::<u64>() as f64 / five as f64);
 
+            // Seule la bannière personnage a un 50/50 déductible de l'historique.
+            let guaranteed = (key == "301").then(|| {
+                history
+                    .last()
+                    .is_some_and(|f| STANDARD_FIVES.contains(&f.name.as_str()))
+            });
+
             out.push(BannerStats {
                 banner: key.to_string(),
                 label: label.to_string(),
@@ -173,9 +210,15 @@ impl Db {
                 five_stars: five,
                 four_stars: four,
                 pity: since,
+                pity_four: since_four,
                 avg_five_pity: avg,
                 reference_pity: reference,
                 luck_delta: avg.map(|a| a - reference),
+                hard_pity,
+                soft_pity,
+                base_rate,
+                soft_step,
+                guaranteed,
                 five_history: history,
                 primogems: total * 160,
             });

@@ -1,4 +1,4 @@
-//! Commande du catalogue des personnages (Ambr), avec cache local — même
+//! Commande du catalogue des personnages (Ambr), avec cache local : même
 //! logique que le farm : on ne retélécharge que si le cache a vieilli.
 
 use tauri::State;
@@ -34,6 +34,6 @@ pub async fn character_catalog(
 }
 
 #[tauri::command]
-pub async fn character_detail(id: i64) -> Result<catalog::CharacterDetail> {
-    catalog::fetch_detail(id).await
+pub async fn character_detail(key: String) -> Result<catalog::CharacterDetail> {
+    catalog::fetch_detail(&key).await
 }

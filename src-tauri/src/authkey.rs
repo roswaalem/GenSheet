@@ -38,7 +38,7 @@ fn url_from_cache(cache_file: &Path) -> Result<String> {
         })
         .last()
         .ok_or_else(|| Error::Msg(
-            "Aucune URL de vœux en cache : ouvre l'historique des vœux dans le jeu, puis réessaie.".into(),
+            "Aucune URL de vœux en cache : l'historique des vœux doit avoir été ouvert dans le jeu récemment.".into(),
         ))?;
 
     // Strip trailing binary garbage.

@@ -12,6 +12,7 @@ mod gacha;
 mod game;
 mod hoyolab;
 mod map;
+mod weapons;
 
 use tauri::Manager;
 
@@ -41,6 +42,8 @@ fn main() {
             commands::hoyolab_character_build,
             commands::character_catalog,
             commands::character_detail,
+            commands::weapon_catalog,
+            commands::weapon_detail,
             commands::codes_open_gift,
             commands::codes_authorize,
             commands::codes_list,

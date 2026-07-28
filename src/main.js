@@ -7,10 +7,12 @@ import { codes } from "./pages/codes.js";
 import { settings } from "./pages/settings.js";
 import { roadmap } from "./pages/roadmap.js";
 import { map } from "./pages/map.js";
+import { teams } from "./pages/teams.js";
+import { weapons } from "./pages/weapons.js";
 
 // Écrans réellement implémentés. Les autres restent en placeholder.
 // Un module de page expose `render()` (son HTML) et `init()` (ses branchements).
-const PAGES = { dashboard, personnages: characters, codes, settings, roadmap, carte: map };
+const PAGES = { dashboard, personnages: characters, armes: weapons, codes, settings, roadmap, carte: map, equipes: teams };
 
 // --- Écrans -----------------------------------------------------------------
 // Source unique de la navigation : la sidebar et les pages en sont générées.
@@ -56,9 +58,9 @@ const SCREENS = [
   },
 ];
 
-// Entrées du pied de sidebar — aussi des écrans à part entière.
+// Entrées du pied de sidebar, aussi des écrans à part entière.
 const FOOT = [
-  { id: "roadmap", label: "Feuille de route", badge: "design", desc: "Aide-mémoire de conception — à retirer de la version finale." },
+  { id: "roadmap", label: "Feuille de route", badge: "design", desc: "Aide-mémoire de conception, à retirer de la version finale." },
   { id: "donnees", label: "Données & CGUs", link: true, desc: "Sources de données et mentions légales (outil non officiel)." },
   { id: "reglages", label: "Réglages", link: true, desc: "Langue, dossier du jeu, compte, apparence et gestion des données." },
 ];
@@ -148,6 +150,53 @@ function wireNav() {
   });
 }
 
+// Largeur maximale d'une infobulle (voir `max-width` dans styles.css).
+const TIP_WIDTH = 340;
+
+// La bulle s'ouvre vers la droite ; trop près du bord, elle serait rognée par
+// la zone de contenu. On bascule alors son ancrage avant qu'elle n'apparaisse.
+function placeTooltips() {
+  const flip = (e) => {
+    const el = e.target.closest?.("[data-tip]");
+    if (!el) return;
+    const limit = ($(".main")?.getBoundingClientRect().right ?? window.innerWidth) - 16;
+    el.classList.toggle("tip-right", el.getBoundingClientRect().left + TIP_WIDTH > limit);
+  };
+  document.addEventListener("mouseover", flip);
+  document.addEventListener("focusin", flip);
+}
+
+// Une icône qui ne se charge pas disparaît au lieu d'afficher un visuel brisé :
+// l'événement error ne remonte pas, d'où l'écoute en phase de capture.
+function hideBrokenImages() {
+  document.addEventListener("error", (e) => {
+    if (e.target instanceof HTMLImageElement) e.target.remove();
+  }, true);
+}
+
+// Composants d'entité : tout élément portant data-char ou data-weapon ouvre la
+// fiche correspondante, d'où qu'il soit affiché : équipes, builds recommandés,
+// tableau de bord. Un seul point de branchement : un nouveau composant n'a rien
+// à câbler, il lui suffit de porter l'attribut.
+function wireEntityLinks() {
+  const open = (e) => {
+    if (e.type === "keydown" && e.key !== "Enter") return;
+    const el = e.target.closest("[data-char], [data-weapon]");
+    if (!el) return;
+    e.preventDefault();
+    if (el.dataset.char) {
+      showTab("personnages");
+      // Clé et non nombre : elle distingue les variantes du Voyageur.
+      characters.openCharacter(el.dataset.char);
+    } else {
+      showTab("armes");
+      weapons.openWeapon(el.dataset.weapon);
+    }
+  };
+  document.addEventListener("click", open);
+  document.addEventListener("keydown", open);
+}
+
 // --- Mises à jour -----------------------------------------------------------
 
 // Version rejetée par l'utilisateur : la bannière ne réapparaît plus pour elle.
@@ -228,6 +277,9 @@ applyTheme(loadTheme());
 renderNav();
 renderPages();
 wireNav();
+wireEntityLinks();
+hideBrokenImages();
+placeTooltips();
 showTab(DEFAULT_TAB);
 
 $("#update-btn").addEventListener("click", runUpdate);

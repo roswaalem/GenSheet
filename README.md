@@ -9,7 +9,7 @@ This template should help get you started developing with Tauri in vanilla HTML,
 ## Données de build recommandées
 
 Les builds recommandés multi-rôles (`src/data/builds.fr.json`) sont **agrégés une fois,
-hors-ligne**, depuis des guides communautaires — l'application ne lit que le JSON local.
+hors-ligne**, depuis des guides communautaires, l'application ne lit que le JSON local.
 
 Regénérer (à la sortie d'un patch) :
 

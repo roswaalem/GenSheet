@@ -89,7 +89,7 @@ struct RedeemResponse {
 /// Traduit les retcodes connus de `webExchangeCdkey`.
 fn interpret(retcode: i64, message: String) -> RedeemOutcome {
     let (status, text): (&'static str, String) = match retcode {
-        0 => ("redeemed", "Échangé — récompenses envoyées par courrier.".into()),
+        0 => ("redeemed", "Échangé : récompenses envoyées par courrier.".into()),
         -2017 | -2018 => ("used", "Code déjà utilisé.".into()),
         -2001 => ("expired", "Code expiré.".into()),
         // L'API ne distingue pas « code inexistant » de « code pas prévu pour

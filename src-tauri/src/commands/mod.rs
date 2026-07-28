@@ -11,6 +11,7 @@ mod farm;
 mod hoyolab;
 mod map;
 mod updates;
+mod weapons;
 mod wishes;
 
 use std::collections::HashMap;
@@ -27,6 +28,7 @@ pub use farm::*;
 pub use hoyolab::*;
 pub use map::*;
 pub use updates::*;
+pub use weapons::*;
 pub use wishes::*;
 
 // Clés sous lesquelles la session HoYoLAB est stockée en base.
@@ -76,7 +78,7 @@ pub(crate) async fn capture_jar(
 ) -> Result<HashMap<String, String>> {
     let window = app
         .get_webview_window(label)
-        .ok_or_else(|| Error::Msg("Fenêtre de connexion fermée : relance la connexion.".into()))?;
+        .ok_or_else(|| Error::Msg("Fenêtre de connexion fermée : connexion à relancer.".into()))?;
 
     let mut jar = stored_jar(db)?;
     for cookie in window.cookies()? {
@@ -114,7 +116,7 @@ pub(crate) fn load_setting<T: DeserializeOwned>(db: &Db, key: &str, missing: &st
 }
 
 pub(crate) fn load_session(db: &Db) -> Result<crate::hoyolab::Session> {
-    load_setting(db, SESSION_KEY, "Pas de session HoYoLAB : connecte-toi d'abord.")
+    load_setting(db, SESSION_KEY, "Pas de session HoYoLAB : connexion requise.")
 }
 
 pub(crate) fn load_account(db: &Db) -> Result<crate::hoyolab::Account> {

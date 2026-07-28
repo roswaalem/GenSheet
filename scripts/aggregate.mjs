@@ -46,10 +46,11 @@ function voteItems(entries) {
   const agg = new Map();
   for (const { it, source, rank } of entries) {
     let e = agg.get(it.key);
-    if (!e) { e = { name: it.name, rarity: it.rarity, icon: it.icon, sources: new Set(), rankSum: 0, cnt: 0 }; agg.set(it.key, e); }
+    if (!e) { e = { id: it.id ?? null, name: it.name, rarity: it.rarity, icon: it.icon, sources: new Set(), rankSum: 0, cnt: 0 }; agg.set(it.key, e); }
     e.sources.add(source); e.rankSum += rank; e.cnt++;
   }
-  return rankAgg(agg).slice(0, 8).map((e) => ({ name: e.name, rarity: e.rarity, icon: e.icon, sources: [...e.sources] }));
+  return rankAgg(agg).slice(0, 8)
+    .map((e) => ({ id: e.id, name: e.name, rarity: e.rarity, icon: e.icon, sources: [...e.sources] }));
 }
 
 const rankAgg = (agg) =>

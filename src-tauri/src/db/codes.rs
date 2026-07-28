@@ -48,7 +48,7 @@ impl Db {
     /// `complete` dit si les deux sources ont répondu. Un code absent n'est
     /// supprimé que dans ce cas : sinon l'absence peut n'être qu'une panne de
     /// source, et supprimer ferait réapparaître le code en « jamais essayé »
-    /// au prochain passage — donc réessayer un code déjà pris.
+    /// au prochain passage, donc réessayer un code déjà pris.
     pub fn sync_codes(
         &self,
         active: &[CodeInfo],

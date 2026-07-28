@@ -111,7 +111,7 @@ async fn pick_working_base(http: &reqwest::Client, auth: &AuthParams) -> Result<
         }
     }
     Err(Error::Msg(
-        "Aucun endpoint de vœux ne répond (authkey expirée ? rouvre l'historique en jeu).".into(),
+        "Aucun endpoint de vœux ne répond (authkey expirée : rouvrir l'historique en jeu).".into(),
     ))
 }
 

@@ -92,7 +92,7 @@ function renderCodes(view) {
 
   const inventory = view.codes.length
     ? `${view.codes.length} codes connus, ${pending} à essayer.`
-    : "Aucun code en mémoire — « Actualiser la liste » interroge les sources.";
+    : "Aucun code en mémoire : « Actualiser la liste » interroge les sources.";
   $("#codes-status").textContent = view.needs_account
     ? `${inventory} L'échange depuis l'app demande la connexion HoYoLAB du tableau de bord.`
     : inventory;
@@ -113,16 +113,15 @@ function renderCodes(view) {
 
   $("#codes-table tbody").innerHTML = view.codes.length
     ? view.codes.map((c) => {
-        const origin = c.last_seen
-          ? `${esc(c.source)} · vu le ${esc(c.last_seen.slice(0, 10))}`
-          : "saisi à la main";
+        // La fraîcheur intéresse ; la provenance non.
+        const origin = c.last_seen ? `vu le ${esc(c.last_seen.slice(0, 10))}` : "saisi à la main";
         const action = isPending(c)
           ? `<button class="btn-ghost sm" data-code="${esc(c.code)}" data-action="${codesReady ? "redeem" : "open"}">
                ${codesReady ? "Échanger" : "Ouvrir la page"}</button>`
           : "";
         return `<tr>
             <td><code class="code">${esc(c.code)}</code><div class="muted">${origin}</div></td>
-            <td class="muted">${esc(c.rewards) || "—"}</td>
+            <td class="muted">${esc(c.rewards) || "-"}</td>
             <td>${statusSelect(c)}
                 ${c.message ? `<div class="muted">${esc(c.message)}</div>` : ""}</td>
             <td class="right">${action}</td>

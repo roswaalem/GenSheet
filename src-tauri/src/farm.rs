@@ -1,7 +1,7 @@
 //! Planning de farm : quels donjons ouverts aujourd'hui concernent quels
 //! personnages du compte.
 //!
-//! Tout est déduit des données statiques d'Ambr — aucune recommandation
+//! Tout est déduit des données statiques d'Ambr, aucune recommandation
 //! écrite à la main. La jointure se fait sur l'ID de personnage, identique
 //! chez Ambr et chez HoYoLAB, donc sans correspondance de noms à deviner.
 

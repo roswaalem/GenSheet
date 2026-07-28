@@ -1,5 +1,5 @@
 //! Page Feuille de route : aide-mémoire de conception (état des écrans).
-//! Outil de suivi interne — à retirer de la version publiée.
+//! Outil de suivi interne, à retirer de la version publiée.
 
 // status : done | wip | todo
 const GROUPS = [
@@ -9,23 +9,24 @@ const GROUPS = [
       ["Shell, thème & navigation", "done", "Fond nébuleuse, sidebar groupée, 16 écrans."],
       ["Tableau de bord", "done", "Compte, vœux, analyse par bannière et chance."],
       ["Codes", "done", "Agrégation, échange et suivi personnel."],
-      ["Réglages — apparence", "done", "Accent et densité paramétrables."],
+      ["Réglages : apparence", "done", "Accent et densité paramétrables."],
+      ["Personnages", "done", "Grille filtrable, fiche, builds recommandés et équipes."],
+      ["Carte interactive", "done", "Teyvat et sous-mondes, recherche, points récupérés."],
+      ["Équipes", "done", "Tier list agrégée (game8 + KQM) et composeur selon le roster possédé."],
+      ["Armes", "done", "Catalogue filtrable, fiche avec passif par raffinement ; armes recommandées cliquables."],
     ],
   },
   {
-    title: "À concevoir — prioritaire",
+    title: "À concevoir : prioritaire",
     items: [
-      ["Personnages", "todo", "Grille filtrable + fiche détaillée (données HoYoLAB déjà là)."],
       ["Exploration", "todo", "Progression par région (données déjà là)."],
-      ["Carte interactive", "todo", "Webview de la carte officielle."],
+      ["Tier lists", "todo", "Rangs par rôle déjà dans le dataset des équipes, reste l'écran."],
     ],
   },
   {
-    title: "À concevoir — ensuite",
+    title: "À concevoir : ensuite",
     items: [
-      ["Armes", "todo", "Catalogue — source Ambr/Hakush à câbler."],
-      ["Artéfacts", "todo", "Sets et effets — source à câbler."],
-      ["Tier lists & Équipes", "todo", "Éditorial — dataset curé."],
+      ["Artéfacts", "todo", "Sets et effets. À l'ouverture : brancher data-artifact sur les sets recommandés des fiches personnage, dont l'id est déjà dans le jeu de données."],
       ["Calendrier", "todo", "Bannières, resets, anniversaires."],
       ["Bestiaire & Succès", "todo", "Sources à câbler."],
     ],

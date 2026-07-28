@@ -1,12 +1,15 @@
 {
   "name": "gensheet",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
+  "type": "module",
   "scripts": {
     "tauri": "tauri",
     "dev": "tauri dev",
     "build": "tauri build",
-    "data": "node scripts/build-data.mjs"
+    "data": "node scripts/build-data.mjs",
+    "data:teams": "node scripts/build-teams.mjs",
+    "data:weapons": "node scripts/build-weapons.mjs"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

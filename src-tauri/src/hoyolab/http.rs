@@ -75,7 +75,7 @@ pub(crate) async fn get<T: serde::de::DeserializeOwned>(
     send(http.get(url), session).await
 }
 
-/// POST signé avec corps JSON — exigé par `character/list` et `character/detail`.
+/// POST signé avec corps JSON, exigé par `character/list` et `character/detail`.
 pub(crate) async fn post<T: serde::de::DeserializeOwned>(
     http: &reqwest::Client,
     url: &str,
@@ -106,7 +106,7 @@ async fn send<T: serde::de::DeserializeOwned>(
     if resp.retcode != 0 {
         // 10001 / -100 : les cookies ont expiré, c'est le cas courant.
         let hint = if resp.retcode == 10001 || resp.retcode == -100 {
-            " — reconnecte-toi à HoYoLAB."
+            " : reconnexion à HoYoLAB nécessaire."
         } else {
             ""
         };

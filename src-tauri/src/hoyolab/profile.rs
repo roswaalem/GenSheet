@@ -42,7 +42,7 @@ pub async fn find_account(session: &Session) -> Result<Account> {
         })
         .ok_or_else(|| {
             Error::Msg(
-                "Aucun compte Genshin sur ce profil HoYoLAB : vérifie que l'affichage public du profil est activé.".into(),
+                "Aucun compte Genshin sur ce profil HoYoLAB : l'affichage public du profil doit être activé.".into(),
             )
         })
 }

@@ -14,11 +14,16 @@ pub struct UpdateInfo {
     notes: Option<String>,
 }
 
-/// Cherche une mise à jour. Renvoie `None` — jamais une erreur — quand le
+/// Cherche une mise à jour. Renvoie `None` (jamais une erreur) quand le
 /// contrôle échoue : hors ligne ou endpoint injoignable, l'app doit démarrer
 /// sans rien reprocher à l'utilisateur. La raison part sur la sortie d'erreur.
 #[tauri::command]
 pub async fn update_check(app: AppHandle) -> Result<Option<UpdateInfo>> {
+    // En développement, la version compilée est celle du dépôt : la comparer à
+    // la dernière version publiée n'annonce qu'une mise à jour fantôme.
+    if cfg!(debug_assertions) {
+        return Ok(None);
+    }
     let updater = match app.updater() {
         Ok(u) => u,
         Err(e) => {
@@ -44,6 +49,9 @@ pub async fn update_check(app: AppHandle) -> Result<Option<UpdateInfo>> {
 /// action explicite de l'utilisateur, un échec silencieux serait pire.
 #[tauri::command]
 pub async fn update_install(app: AppHandle) -> Result<()> {
+    if cfg!(debug_assertions) {
+        return Err(Error::Msg("Mise à jour désactivée en développement.".into()));
+    }
     let update = app
         .updater()?
         .check()

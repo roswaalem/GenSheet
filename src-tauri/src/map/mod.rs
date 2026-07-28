@@ -1,6 +1,6 @@
 //! Carte interactive : proxy de l'API carte publique de HoYoLAB (fond en tuiles,
 //! arbre de catégories, marqueurs). Publique et sans authentification, comme
-//! Ambr — on passe par le backend car le webview bloquerait le cross-origin.
+//! Ambr : on passe par le backend car le webview bloquerait le cross-origin.
 
 use serde::{Deserialize, Serialize};
 
